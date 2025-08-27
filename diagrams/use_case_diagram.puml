@@ -1,0 +1,50 @@
+@startuml
+left to right direction
+actor Roditelj
+actor Lekar
+actor Administrator
+
+package "Servis Zdravstvo" {
+  usecase "Zakazivanje lekarskih pregleda" as UC1
+  usecase "Generisanje elektronskog uputa (PDF)" as UC2
+  usecase "Validacija zdravstvene knjižice" as UC3
+  usecase "Slanje SMS/e-mail notifikacija pacijentu" as UC4
+  usecase "Evidencija dolaska pacijenta (check-in)" as UC5
+}
+
+package "Servis Predškolske ustanove" {
+  usecase "Elektronski upis deteta u vrtić" as UC6
+  usecase "Provera slobodnih mesta u vrtiću" as UC7
+  usecase "Automatska dodela mesta (po kriterijumima)" as UC8
+  usecase "Generisanje potvrde o upisu (PDF)" as UC9
+  usecase "Slanje obaveštenja roditeljima" as UC10
+}
+
+package "SSO Sistem" {
+  usecase "Prijava / autentifikacija" as UC11
+  usecase "Upravljanje korisnicima" as UC12
+}
+
+' Veze aktera sa Use Case
+Roditelj --> UC11
+Roditelj --> UC6
+Roditelj --> UC7
+Roditelj --> UC9
+Roditelj --> UC10
+
+Lekar --> UC1
+Lekar --> UC2
+Lekar --> UC5
+
+Administrator --> UC8
+Administrator --> UC12
+
+' Interakcije između servisa
+UC6 --> UC3 : "Provera zdravstvene knjižice deteta"
+UC6 --> UC1 : "Provera obavljenog pregleda"
+UC9 --> UC4 : "Slanje potvrde i notifikacije"
+
+UC11 --> UC1 : "Autentifikacija pacijenta"
+UC11 --> UC6 : "Autentifikacija roditelja"
+
+@enduml

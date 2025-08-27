@@ -1,0 +1,101 @@
+@startuml
+' Zdravstvo
+class Pacijent {
+  +JMBG: string
+  +Ime: string
+  +Prezime: string
+  +ZdravstvenaKnjizica: bool
+}
+
+class Pregled {
+  +ID: int
+  +Datum: DateTime
+  +TipPregleda: string
+  +Status: string
+}
+
+class Uput {
+  +ID: int
+  +PacijentID: int
+  +Specijalista: string
+  +PDFDokument: binary
+}
+
+class Notifikacija {
+  +ID: int
+  +Tip: enum
+  +Sadrzaj: string
+  +Status: bool
+}
+
+' Predškolske ustanove
+class Dete {
+  +JMBG: string
+  +Ime: string
+  +Prezime: string
+  +DatumRodjenja: Date
+}
+
+class ZahtevZaUpis {
+  +ID: int
+  +DeteID: int
+  +Status: string
+  +DatumPodnosenja: DateTime
+  +dodeliMesto()
+}
+
+class Vrtic {
+  +ID: int
+  +Naziv: string
+  +Kapacitet: int
+  +BrojSlobodnihMesta: int
+}
+
+class PotvrdaUpisa {
+  +ID: int
+  +ZahtevID: int
+  +PDFDokument: binary
+}
+
+class Obavestenje {
+  +ID: int
+  +Tip: enum
+  +Sadrzaj: string
+  +Status: bool
+}
+
+' SSO sistem
+class Korisnik {
+  +ID: int
+  +Ime: string
+  +Prezime: string
+  +Email: string
+  +Prijava()
+  +Odjava()
+}
+
+class SSO {
+  +autentifikacija()
+  +autorizacija()
+}
+
+' Veze Zdravstvo
+Pacijent "1" -- "0..*" Pregled
+Pacijent "1" -- "0..*" Uput
+Pacijent "1" -- "0..*" Notifikacija
+
+' Veze Predškolske ustanove
+Dete "1" -- "0..*" ZahtevZaUpis
+Vrtic "1" -- "0..*" ZahtevZaUpis
+ZahtevZaUpis "1" -- "1" PotvrdaUpisa
+ZahtevZaUpis "1" -- "0..*" Obavestenje
+
+' Veze između servisa
+Dete "1" -- "1" Pacijent : JMBG
+
+' Veze sa SSO
+Korisnik --> SSO
+Pacijent --> Korisnik
+Dete --> Korisnik
+
+@enduml
