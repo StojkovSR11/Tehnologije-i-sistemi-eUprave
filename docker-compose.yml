@@ -1,0 +1,75 @@
+version: "3.8"
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: egovernment-mongodb
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGO_INITDB_DATABASE: egovernment
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - egovernment-network
+
+  zdravstvo:
+    build:
+      context: ./zdravstvo
+      dockerfile: Dockerfile
+    container_name: egovernment-zdravstvo
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/egovernment?authSource=admin
+      - PORT=8080
+    depends_on:
+      - mongodb
+    networks:
+      - egovernment-network
+
+  predskolske-ustanove:
+    build:
+      context: ./predskolske-ustanove
+      dockerfile: Dockerfile
+    container_name: egovernment-predskolske
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/egovernment?authSource=admin
+      - ZDRAVSTVO_SERVICE_URL=http://zdravstvo:8080
+      - PORT=8081
+    depends_on:
+      - mongodb
+      - zdravstvo
+    networks:
+      - egovernment-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: egovernment-frontend
+    restart: unless-stopped
+    ports:
+      - "4200:80"
+    environment:
+      - ZDRAVSTVO_API_URL=http://localhost:8080
+      - PREDSKOLSKE_API_URL=http://localhost:8081
+    depends_on:
+      - zdravstvo
+      - predskolske-ustanove
+    networks:
+      - egovernment-network
+
+volumes:
+  mongodb_data:
+
+networks:
+  egovernment-network:
+    driver: bridge
