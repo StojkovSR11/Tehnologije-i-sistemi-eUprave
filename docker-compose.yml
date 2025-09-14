@@ -26,7 +26,26 @@ services:
       - "8080:8080"
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/egovernment?authSource=admin
+      - AUTH_SERVICE_URL=http://auth:8082
       - PORT=8080
+    depends_on:
+      - mongodb
+      - auth
+    networks:
+      - egovernment-network
+
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    container_name: egovernment-auth
+    restart: unless-stopped
+    ports:
+      - "8082:8082"
+    environment:
+      - MONGODB_URI=mongodb://admin:password@mongodb:27017/egovernment?authSource=admin
+      - JWT_SECRET=egovernment-secret-key-2024
+      - PORT=8082
     depends_on:
       - mongodb
     networks:
@@ -43,10 +62,12 @@ services:
     environment:
       - MONGODB_URI=mongodb://admin:password@mongodb:27017/egovernment?authSource=admin
       - ZDRAVSTVO_SERVICE_URL=http://zdravstvo:8080
+      - AUTH_SERVICE_URL=http://auth:8082
       - PORT=8081
     depends_on:
       - mongodb
       - zdravstvo
+      - auth
     networks:
       - egovernment-network
 

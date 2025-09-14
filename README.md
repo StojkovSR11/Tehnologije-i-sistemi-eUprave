@@ -4,13 +4,23 @@
 
 Projekat predstavlja kompletnu eGovernment platformu sa mikroservisnom arhitekturom:
 
+- **Auth servis** - SSO autentifikacija za sve servise
 - **Zdravstvo servis** - upravljanje zdravstvenim podacima i pregledi
 - **Predškolske ustanove servis** - upis dece u vrtiće
-- **Angular Frontend** - frontend aplikacija
+- **Frontend sa Nginx** - web interfejs sa proxy rutiranjem
 - **MongoDB** - perzistentno skladištenje podataka
 - **Docker** - kontejnerizacija celokupnog sistema
 
 ## 🎯 Osnovna funkcionalnost
+
+### Auth servis (Port 8082)
+
+- JWT-based SSO autentifikacija
+- Registracija i prijava korisnika
+- Validacija tokena za druge servise
+- Role-based access control (građanin, doktor, admin)
+- Centralizovano upravljanje korisnicima
+- REST API za autentifikaciju
 
 ### Zdravstvo servis (Port 8080)
 
@@ -30,24 +40,30 @@ Projekat predstavlja kompletnu eGovernment platformu sa mikroservisnom arhitektu
 - Slanje obaveštenja roditeljima
 - Komunikacija sa Zdravstvo servisom za validaciju
 
-### Angular Frontend (Port 4200)
+### Frontend sa Nginx (Port 4200)
 
-- Korisničko sučelje za građane
+- SSO login interfejs
 - Forma za zakazivanje pregleda
 - Forma za upis deteta u vrtić
 - Pregled notifikacija i obaveštenja
+- Nginx proxy za API rutiranje
 - Responsive design
 
 ## 🔗 Komunikacija između servisa
 
-Predškolske ustanove servis poziva Zdravstvo servis da proveri zdravstveni status deteta pre odobravanja upisa.
+- **Auth servis** - centralizovana autentifikacija za sve servise
+- **Predškolske ustanove** poziva **Zdravstvo servis** za validaciju zdravstvenog statusa deteta
+- **Svi servisi** koriste **Auth servis** za validaciju JWT tokena
+- **Frontend** komunicira sa svim servisima preko Nginx proxy-ja
 
 ## 🛠️ Tehnologije
 
 - **Backend:** Go (Golang)
-- **Frontend:** Angular 17+
+- **Frontend:** HTML/CSS/JavaScript sa Nginx
+- **Autentifikacija:** JWT (JSON Web Tokens)
 - **Baza podataka:** MongoDB
 - **HTTP framework:** Gin
+- **Proxy server:** Nginx
 - **Kontejnerizacija:** Docker & Docker Compose
 - **Format:** JSON za API komunikaciju
 
@@ -61,6 +77,7 @@ docker-compose up -d
 
 # Pristup aplikaciji
 # Frontend: http://localhost:4200
+# Auth API: http://localhost:8082
 # Zdravstvo API: http://localhost:8080
 # Predškolske ustanove API: http://localhost:8081
 # MongoDB: localhost:27017
@@ -73,22 +90,28 @@ docker-compose up -d
 docker run -d -p 27017:27017 --name mongodb mongo:latest
 
 # 2. Pokretanje backend servisa
-cd zdravstvo
+cd auth
+go run main.go
+
+cd ../zdravstvo
 go run main.go
 
 cd ../predskolske-ustanove
 go run main.go
 
-# 3. Pokretanje Angular frontend-a
+# 3. Pokretanje frontend-a sa Nginx
 cd ../frontend
-npm install
-ng serve
+# Koristiti Docker ili servirati statični HTML direktno
 ```
 
 ## 📂 Struktura projekta
 
 ```
 .
+├── auth/
+│   ├── main.go
+│   ├── go.mod
+│   └── Dockerfile
 ├── zdravstvo/
 │   ├── main.go
 │   ├── models/

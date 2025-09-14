@@ -84,6 +84,31 @@
 
       <div class="services">
         <div class="service-card">
+          <h3>🔐 Authentication</h3>
+          <p>SSO login for all government services</p>
+          <div id="auth-form">
+            <input
+              type="text"
+              id="jmbg"
+              placeholder="JMBG (e.g. 1234567890123)"
+              style="margin: 5px; padding: 8px; width: 200px"
+            />
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              style="margin: 5px; padding: 8px; width: 200px"
+            />
+            <button class="btn" onclick="login()">Login</button>
+            <button class="btn" onclick="logout()">Logout</button>
+          </div>
+          <button class="btn" onclick="testAuthService()">
+            Test Auth Service
+          </button>
+          <div id="auth-status"></div>
+        </div>
+
+        <div class="service-card">
           <h3>🏥 Zdravstvo</h3>
           <p>Zakazivanje pregleda, uputi, zdravstvena knjižica</p>
           <button class="btn" onclick="testHealthService()">
@@ -116,6 +141,10 @@
     <script>
       const ZDRAVSTVO_URL = "http://localhost:8080";
       const PREDSKOLSKE_URL = "http://localhost:8081";
+      const AUTH_URL = "http://localhost:8082";
+
+      // Store JWT token
+      let authToken = localStorage.getItem("authToken");
 
       async function testHealthService() {
         const statusDiv = document.getElementById("zdravstvo-status");
@@ -169,10 +198,76 @@
         }
       }
 
+      // Auth functions
+      async function testAuthService() {
+        const statusDiv = document.getElementById("auth-status");
+        try {
+          const response = await fetch(`${AUTH_URL}/health`);
+          const data = await response.json();
+          statusDiv.innerHTML = `<div class="status success">✅ Auth service: ${data.status}</div>`;
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="status error">❌ Auth service: ${error.message}</div>`;
+        }
+      }
+
+      async function login() {
+        const jmbg = document.getElementById("jmbg").value;
+        const password = document.getElementById("password").value;
+        const statusDiv = document.getElementById("auth-status");
+
+        if (!jmbg || !password) {
+          statusDiv.innerHTML = `<div class="status error">❌ Please enter JMBG and password</div>`;
+          return;
+        }
+
+        try {
+          const response = await fetch(`${AUTH_URL}/api/v1/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jmbg, password }),
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            authToken = data.token;
+            localStorage.setItem("authToken", authToken);
+            statusDiv.innerHTML = `<div class="status success">✅ Login successful! Welcome ${data.user.name}</div>`;
+          } else {
+            const error = await response.json();
+            statusDiv.innerHTML = `<div class="status error">❌ Login failed: ${error.error}</div>`;
+          }
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="status error">❌ Login error: ${error.message}</div>`;
+        }
+      }
+
+      async function logout() {
+        const statusDiv = document.getElementById("auth-status");
+
+        try {
+          if (authToken) {
+            await fetch(`${AUTH_URL}/api/v1/sso/logout`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                "Content-Type": "application/json",
+              },
+            });
+          }
+
+          authToken = null;
+          localStorage.removeItem("authToken");
+          statusDiv.innerHTML = `<div class="status success">✅ Logged out successfully</div>`;
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="status error">❌ Logout error: ${error.message}</div>`;
+        }
+      }
+
       async function testAllServices() {
         const statusDiv = document.getElementById("system-status");
         statusDiv.innerHTML = "<div>Testing all services...</div>";
 
+        await testAuthService();
         await testHealthService();
         await testPredskolskeService();
 
@@ -180,8 +275,12 @@
           '<div class="status success">✅ All tests completed</div>';
       }
 
-      // Test services on page load
+      // Check if user is logged in on page load
       window.onload = function () {
+        if (authToken) {
+          document.getElementById("auth-status").innerHTML =
+            '<div class="status success">✅ Already logged in</div>';
+        }
         testAllServices();
       };
     </script>
