@@ -1,25 +1,8 @@
-# Build stage
-FROM node:18-alpine AS builder
-
-WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-
-# Install dependencies
-RUN npm ci
-
-# Copy source code
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production stage
+# Production stage - serve static files with nginx
 FROM nginx:alpine
 
-# Copy built application
-COPY --from=builder /app/dist/* /usr/share/nginx/html/
+# Copy static HTML file
+COPY src/index.html /usr/share/nginx/html/
 
 # Copy nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf

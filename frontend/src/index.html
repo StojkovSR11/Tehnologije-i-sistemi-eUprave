@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>eGovernment Portal</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        color: #2c3e50;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+      }
+      .services {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+      .service-card {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 20px;
+        background: #f9f9f9;
+      }
+      .service-card h3 {
+        color: #2c3e50;
+        margin-top: 0;
+      }
+      .btn {
+        background: #3498db;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin: 5px;
+      }
+      .btn:hover {
+        background: #2980b9;
+      }
+      .status {
+        margin: 20px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .status.success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+      .status.error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🏛️ eGovernment Portal</h1>
+        <p>Digitalni servisi za građane Republike Srbije</p>
+      </div>
+
+      <div class="services">
+        <div class="service-card">
+          <h3>🏥 Zdravstvo</h3>
+          <p>Zakazivanje pregleda, uputi, zdravstvena knjižica</p>
+          <button class="btn" onclick="testHealthService()">
+            Test Zdravstvo Service
+          </button>
+          <button class="btn" onclick="testZdravstvoAPI()">Test API</button>
+          <div id="zdravstvo-status"></div>
+        </div>
+
+        <div class="service-card">
+          <h3>🎓 Predškolske ustanove</h3>
+          <p>Upis u vrtić, zahtevi, potvrde</p>
+          <button class="btn" onclick="testPredskolskeService()">
+            Test Predškolske Service
+          </button>
+          <button class="btn" onclick="testPredskolskeAPI()">Test API</button>
+          <div id="predskolske-status"></div>
+        </div>
+      </div>
+
+      <div class="service-card" style="margin-top: 20px">
+        <h3>🔧 System Status</h3>
+        <button class="btn" onclick="testAllServices()">
+          Test All Services
+        </button>
+        <div id="system-status"></div>
+      </div>
+    </div>
+
+    <script>
+      const ZDRAVSTVO_URL = "http://localhost:8080";
+      const PREDSKOLSKE_URL = "http://localhost:8081";
+
+      async function testHealthService() {
+        const statusDiv = document.getElementById("zdravstvo-status");
+        try {
+          const response = await fetch(`${ZDRAVSTVO_URL}/health`);
+          const data = await response.json();
+          statusDiv.innerHTML = `<div class="status success">✅ Zdravstvo service: ${data.status}</div>`;
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="status error">❌ Zdravstvo service: ${error.message}</div>`;
+        }
+      }
+
+      async function testPredskolskeService() {
+        const statusDiv = document.getElementById("predskolske-status");
+        try {
+          const response = await fetch(`${PREDSKOLSKE_URL}/health`);
+          const data = await response.json();
+          statusDiv.innerHTML = `<div class="status success">✅ Predškolske service: ${data.status}</div>`;
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="status error">❌ Predškolske service: ${error.message}</div>`;
+        }
+      }
+
+      async function testZdravstvoAPI() {
+        const statusDiv = document.getElementById("zdravstvo-status");
+        try {
+          const response = await fetch(`${ZDRAVSTVO_URL}/api/v1/pregledi`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ test: true }),
+          });
+          const data = await response.json();
+          statusDiv.innerHTML = `<div class="status success">✅ Zdravstvo API: ${data.message}</div>`;
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="status error">❌ Zdravstvo API: ${error.message}</div>`;
+        }
+      }
+
+      async function testPredskolskeAPI() {
+        const statusDiv = document.getElementById("predskolske-status");
+        try {
+          const response = await fetch(`${PREDSKOLSKE_URL}/api/v1/zahtevi`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ test: true }),
+          });
+          const data = await response.json();
+          statusDiv.innerHTML = `<div class="status success">✅ Predškolske API: ${data.message}</div>`;
+        } catch (error) {
+          statusDiv.innerHTML = `<div class="status error">❌ Predškolske API: ${error.message}</div>`;
+        }
+      }
+
+      async function testAllServices() {
+        const statusDiv = document.getElementById("system-status");
+        statusDiv.innerHTML = "<div>Testing all services...</div>";
+
+        await testHealthService();
+        await testPredskolskeService();
+
+        statusDiv.innerHTML =
+          '<div class="status success">✅ All tests completed</div>';
+      }
+
+      // Test services on page load
+      window.onload = function () {
+        testAllServices();
+      };
+    </script>
+  </body>
+</html>
