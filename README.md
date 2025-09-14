@@ -40,14 +40,16 @@ Projekat predstavlja kompletnu eGovernment platformu sa mikroservisnom arhitektu
 - Slanje obaveštenja roditeljima
 - Komunikacija sa Zdravstvo servisom za validaciju
 
-### Frontend sa Nginx (Port 4200)
+### Angular Frontend sa Nginx (Port 4200)
 
-- SSO login interfejs
-- Forma za zakazivanje pregleda
-- Forma za upis deteta u vrtić
+- Angular 17 aplikacija sa standalone komponentama
+- SSO login interfejs sa JWT autentifikacijom
+- Forma za zakazivanje pregleda sa validacijom
+- Forma za upis deteta u vrtić sa real-time validacijom
 - Pregled notifikacija i obaveštenja
+- Responsive design sa modernim UI
+- HTTP klijent za komunikaciju sa backend servisima
 - Nginx proxy za API rutiranje
-- Responsive design
 
 ## 🔗 Komunikacija između servisa
 
@@ -59,13 +61,14 @@ Projekat predstavlja kompletnu eGovernment platformu sa mikroservisnom arhitektu
 ## 🛠️ Tehnologije
 
 - **Backend:** Go (Golang)
-- **Frontend:** HTML/CSS/JavaScript sa Nginx
+- **Frontend:** Angular 17 sa TypeScript
 - **Autentifikacija:** JWT (JSON Web Tokens)
 - **Baza podataka:** MongoDB
-- **HTTP framework:** Gin
+- **HTTP framework:** Gin (backend), Angular HttpClient (frontend)
 - **Proxy server:** Nginx
 - **Kontejnerizacija:** Docker & Docker Compose
 - **Format:** JSON za API komunikaciju
+- **Build sistem:** Angular CLI, Node.js
 
 ## 🚀 Pokretanje
 
