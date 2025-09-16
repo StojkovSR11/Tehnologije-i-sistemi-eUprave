@@ -1,0 +1,46 @@
+<div class="zahtevi-container">
+  <h2>Zahtevi za upis</h2>
+
+  <!-- Dodavanje novog zahteva -->
+  <div class="card">
+    <h3>Dodaj novi zahtev</h3>
+    <form (ngSubmit)="dodajZahtev()" #form="ngForm">
+      <div class="form-group">
+        <label for="dete">Dete</label>
+        <select id="dete" name="dete" class="form-control" [(ngModel)]="noviZahtev.deteId" required>
+          <option value="">Izaberite dete</option>
+          <option *ngFor="let d of deca" [value]="d.korisnikId">{{ d.ime }} {{ d.prezime }}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="vrtic">Vrtić</label>
+       <select id="dete" name="dete" class="form-control" [(ngModel)]="noviZahtev.dete.korisnikId" required>
+  <option value="">Izaberite dete</option>
+  <option *ngFor="let d of deca" [value]="d.korisnikId">{{ d.ime }} {{ d.prezime }}</option>
+</select>
+
+      </div>
+
+      <button type="submit" class="btn btn-success" [disabled]="isLoading || !form.form.valid">
+        {{ isLoading ? "Dodavanje..." : "Dodaj zahtev" }}
+      </button>
+    </form>
+
+    <div *ngIf="statusMessage" [ngClass]="statusMessage.type" class="alert mt-10">
+      {{ statusMessage.message }}
+    </div>
+  </div>
+
+  <!-- Lista zahteva -->
+  <div class="card mt-20">
+    <h3>Lista zahteva</h3>
+    <div *ngIf="zahtevi.length === 0">Nema podataka</div>
+    <ul>
+      <li *ngFor="let z of zahtevi">
+        Dete: {{ z.deteId }} | Vrtić: {{ z.vrticId }} | Status: {{ z.status }}
+        <button class="btn btn-danger btn-sm" (click)="obrisiZahtev(z.id!)">Obriši</button>
+      </li>
+    </ul>
+  </div>
+</div>

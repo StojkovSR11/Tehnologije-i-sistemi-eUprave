@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService, RegisterRequest } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -17,16 +17,19 @@ export class RegisterComponent {
   password = '';
   message = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   onRegister() {
-    this.http.post<any>('http://localhost:8082/api/v1/register', {
+    const registerData: RegisterRequest = {
       jmbg: this.jmbg,
       email: this.email,
       name: this.name,
       password: this.password
-    }).subscribe({
-      next: (res) => {
+    };
+
+    this.authService.register(registerData).subscribe({
+      next: (response) => {
         this.message = 'Uspešno ste registrovani!';
         this.router.navigate(['/login']);
       },

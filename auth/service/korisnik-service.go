@@ -51,12 +51,17 @@ func (s *KorisnikService) Login(jmbg, password string) (string, error) {
 		return "", errors.New("pogresna sifra")
 	}
 
-	// Generisanje JWT tokena
+	// Generisanje JWT tokena sa svim korisničkim podacima
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-		"jmbg":  korisnik.JMBG,
-		"email": korisnik.Email,
-		"uloga": korisnik.Uloga,
-		"exp":   time.Now().Add(time.Hour * 2).Unix(),
+		"jmbg":     korisnik.JMBG,
+		"email":    korisnik.Email,
+		"ime":      korisnik.Ime,
+		"prezime":  korisnik.Prezime,
+		"name":     korisnik.Ime + " " + korisnik.Prezime,
+		"uloga":    korisnik.Uloga,
+		"role":     korisnik.Uloga,
+		"exp":      time.Now().Add(time.Hour * 2).Unix(),
+		"iat":      time.Now().Unix(),
 	})
 
 	tokenString, err := token.SignedString(s.jwtSecret)

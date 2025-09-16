@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { AuthService, LoginRequest } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -15,15 +15,17 @@ export class LoginComponent {
   password = '';
   errorMessage = '';
 
-  constructor(private http: HttpClient, private router: Router) {}
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   onLogin() {
-    this.http.post<any>('http://localhost:8082/api/v1/login', {
+    const credentials: LoginRequest = {
       jmbg: this.jmbg,
       password: this.password
-    }).subscribe({
-      next: (res) => {
-        localStorage.setItem('token', res.token);
+    };
+
+    this.authService.login(credentials).subscribe({
+      next: (response) => {
         this.router.navigate(['/dashboard']); // ili bilo koja zaštićena ruta
       },
       error: (err) => {

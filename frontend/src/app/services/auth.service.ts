@@ -16,7 +16,6 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
-  user: User;
 }
 
 // Novi tip za registraciju
@@ -32,7 +31,7 @@ export interface RegisterRequest {
 })
 export class AuthService {
   private http = inject(HttpClient);
-  private readonly API_URL = "http://localhost:8082/api/v1";
+  private readonly API_URL = "http://localhost:8082";
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
@@ -40,9 +39,15 @@ export class AuthService {
   constructor() {
     // Check if user is already logged in
     const token = localStorage.getItem("authToken");
-    const user = localStorage.getItem("currentUser");
-    if (token && user) {
-      this.currentUserSubject.next(JSON.parse(user));
+    if (token) {
+      const user = this.getUserFromToken(token);
+      if (user) {
+        this.currentUserSubject.next(user);
+      } else {
+        // Clear invalid token
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("currentUser");
+      }
     }
   }
 
@@ -52,8 +57,11 @@ export class AuthService {
       .pipe(
         tap((response) => {
           localStorage.setItem("authToken", response.token);
-          localStorage.setItem("currentUser", JSON.stringify(response.user));
-          this.currentUserSubject.next(response.user);
+          const user = this.getUserFromToken(response.token);
+          if (user) {
+            localStorage.setItem("currentUser", JSON.stringify(user));
+            this.currentUserSubject.next(user);
+          }
         })
       );
   }
@@ -97,5 +105,36 @@ export class AuthService {
 
   testService(): Observable<any> {
     return this.http.get(`http://localhost:8082/health`);
+  }
+
+  // Decode JWT token and extract user data
+  private getUserFromToken(token: string): User | null {
+    try {
+      // JWT token has 3 parts separated by dots
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return null;
+      }
+
+      // Decode the payload (second part)
+      const payload = parts[1];
+      const decodedPayload = atob(payload);
+      const tokenData = JSON.parse(decodedPayload);
+
+      // Check if token is expired
+      if (tokenData.exp && tokenData.exp * 1000 < Date.now()) {
+        return null;
+      }
+
+      // Extract user data from token
+      return {
+        jmbg: tokenData.jmbg,
+        name: tokenData.name || `${tokenData.ime} ${tokenData.prezime}`,
+        role: tokenData.role || tokenData.uloga
+      };
+    } catch (error) {
+      console.error('Error decoding JWT token:', error);
+      return null;
+    }
   }
 }

@@ -1,0 +1,34 @@
+<div class="vrtici-container">
+  <h2>Lista vrtića</h2>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>Naziv</th>
+        <th>Kapacitet</th>
+        <th>Broj slobodnih mesta</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of vrtici">
+        <td>{{ v.naziv }}</td>
+        <td>{{ v.kapacitet }}</td>
+        <td>{{ v.brojSlobodnihMesta }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Dodaj novi vrtić</h3>
+  <form (ngSubmit)="dodajVrtic()">
+    <label>Naziv:
+      <input type="text" [(ngModel)]="noviVrtic.naziv" name="naziv" required>
+    </label>
+    <label>Kapacitet:
+      <input type="number" [(ngModel)]="noviVrtic.kapacitet" name="kapacitet" required>
+    </label>
+    <label>Broj slobodnih mesta:
+      <input type="number" [(ngModel)]="noviVrtic.brojSlobodnihMesta" name="brojSlobodnihMesta" required>
+    </label>
+    <button type="submit">Dodaj vrtić</button>
+  </form>
+</div>

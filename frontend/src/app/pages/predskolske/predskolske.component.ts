@@ -1,3 +1,4 @@
+/*
 import { Component, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
@@ -305,8 +306,8 @@ export class PredskolskeComponent implements OnInit {
       ime: "",
       prezime: "",
       jmbg: "",
-      datumRodjenja: "",
-      jmbgRoditelja: "",
+      datumRodj: "",
+      korisnikId: "",
     },
     vrticId: "",
   };
@@ -367,21 +368,21 @@ export class PredskolskeComponent implements OnInit {
             naziv: 'Vrtić "Sunce"',
             adresa: "Knez Mihailova 15, Beograd",
             kapacitet: 100,
-            slobodnaMesta: 15,
+            brojSlobodnaMesta: 15,
           },
           {
             id: "2",
             naziv: 'Vrtić "Duga"',
             adresa: "Makedonska 25, Beograd",
             kapacitet: 80,
-            slobodnaMesta: 8,
+            brojSlobodnaMesta: 8,
           },
           {
             id: "3",
             naziv: 'Vrtić "Cveće"',
             adresa: "Terazije 10, Beograd",
             kapacitet: 120,
-            slobodnaMesta: 0,
+            brojSlobodnaMesta: 0,
           },
         ];
       },
@@ -428,10 +429,11 @@ export class PredskolskeComponent implements OnInit {
         ime: "",
         prezime: "",
         jmbg: "",
-        datumRodjenja: "",
-        jmbgRoditelja: "",
+        datumRodj: "",
+        korisnikId: "",
       },
       vrticId: "",
     };
   }
 }
+*/

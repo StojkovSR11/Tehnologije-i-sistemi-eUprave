@@ -1,0 +1,69 @@
+package repository
+
+import (
+	"context"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+
+	"predskolske-ustanove/model"
+)
+
+type ZahtevRepository struct {
+	collection *mongo.Collection
+	ctx        context.Context
+}
+
+func NewZahtevRepository(db *mongo.Database) *ZahtevRepository {
+	return &ZahtevRepository{
+		collection: db.Collection("zahtevi"),
+		ctx:        context.Background(),
+	}
+}
+
+func (r *ZahtevRepository) Create(zahtev *model.ZahtevZaUpis) (*mongo.InsertOneResult, error) {
+	return r.collection.InsertOne(r.ctx, zahtev)
+}
+
+func (r *ZahtevRepository) GetAll() ([]model.ZahtevZaUpis, error) {
+	cursor, err := r.collection.Find(r.ctx, bson.M{})
+	if err != nil {
+		return nil, err
+	}
+	defer cursor.Close(r.ctx)
+
+	var zahtevi []model.ZahtevZaUpis
+	for cursor.Next(r.ctx) {
+		var z model.ZahtevZaUpis
+		if err := cursor.Decode(&z); err != nil {
+			return nil, err
+		}
+		zahtevi = append(zahtevi, z)
+	}
+	return zahtevi, nil
+}
+
+func (r *ZahtevRepository) GetByID(id primitive.ObjectID) (*model.ZahtevZaUpis, error) {
+	var z model.ZahtevZaUpis
+	err := r.collection.FindOne(r.ctx, bson.M{"_id": id}).Decode(&z)
+	if err != nil {
+		return nil, err
+	}
+	return &z, nil
+}
+
+func (r *ZahtevRepository) Update(id primitive.ObjectID, zahtev *model.ZahtevZaUpis) (*mongo.UpdateResult, error) {
+	update := bson.M{
+		"$set": bson.M{
+			"detetID":   zahtev.DeteID,
+			"status":    zahtev.Status,
+			"datumPodnosenja": zahtev.DatumPodnosenja,
+		},
+	}
+	return r.collection.UpdateByID(r.ctx, id, update)
+}
+
+func (r *ZahtevRepository) Delete(id primitive.ObjectID) (*mongo.DeleteResult, error) {
+	return r.collection.DeleteOne(r.ctx, bson.M{"_id": id})
+}

@@ -1,0 +1,33 @@
+<div class="deca-container">
+  <h2>Lista dece</h2>
+  <ul>
+    <li *ngFor="let dete of deca">
+      {{ dete.ime }} {{ dete.prezime }} - JMBG: {{ dete.jmbg }} - Korisnik ID: {{ dete.korisnikId }}
+    </li>
+  </ul>
+
+  <h3>Dodaj novo dete</h3>
+  <form (ngSubmit)="dodajDete()">
+    <div>
+      <label>Ime:</label>
+      <input type="text" [(ngModel)]="novoDete.ime" name="ime" required>
+    </div>
+    <div>
+      <label>Prezime:</label>
+      <input type="text" [(ngModel)]="novoDete.prezime" name="prezime" required>
+    </div>
+    <div>
+      <label>JMBG:</label>
+      <input type="text" [(ngModel)]="novoDete.jmbg" name="jmbg" required>
+    </div>
+    <div>
+      <label>Datum rođenja:</label>
+      <input type="date" [(ngModel)]="novoDete.datumRodj" name="datumRodj" required>
+    </div>
+    <div>
+      <label>Korisnik ID:</label>
+      <input type="text" [(ngModel)]="novoDete.korisnikId" name="korisnikId" required>
+    </div>
+    <button type="submit">Dodaj dete</button>
+  </form>
+</div>

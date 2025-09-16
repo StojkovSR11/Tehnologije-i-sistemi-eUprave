@@ -1,0 +1,15 @@
+package model
+
+import (
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"time"
+)
+
+type Dete struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"id"`
+	JMBG      string             `bson:"jmbg" json:"jmbg"`
+	Ime       string             `bson:"ime" json:"ime"`
+	Prezime   string             `bson:"prezime" json:"prezime"`
+	DatumRodj time.Time          `bson:"datumRodj" json:"datumRodj"`
+	Korisnik  primitive.ObjectID `bson:"korisnik_id" json:"korisnikId"` // veza ka Korisnik
+}

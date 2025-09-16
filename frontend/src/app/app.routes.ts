@@ -13,13 +13,13 @@ export const routes: Routes = [
         (m) => m.ZdravstvoComponent
       ),
   },
-  {
+  /*{
     path: "predskolske",
     loadComponent: () =>
       import("./pages/predskolske/predskolske.component").then(
         (m) => m.PredskolskeComponent
       ),
-  },
+  },*/
   {
     path: "login",
     loadComponent: () =>
