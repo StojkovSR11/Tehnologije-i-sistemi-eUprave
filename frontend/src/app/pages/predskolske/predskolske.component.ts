@@ -1,7 +1,7 @@
-/*
 import { Component, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
+import { RouterModule } from "@angular/router";
 import {
   PredskolskeService,
   ZahtevZaUpis,
@@ -13,7 +13,7 @@ import { AuthService } from "../../services/auth.service";
 @Component({
   selector: "app-predskolske",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   template: `
     <div class="predskolske-container">
       <div class="page-header">
@@ -76,24 +76,11 @@ import { AuthService } from "../../services/auth.service";
                   id="datumRodjenja"
                   name="datumRodjenja"
                   class="form-control"
-                  [(ngModel)]="noviZahtev.dete.datumRodjenja"
+                  [(ngModel)]="noviZahtev.dete.datumRodj"
                   required
                 />
               </div>
 
-              <div class="form-group">
-                <label for="jmbgRoditelja">JMBG roditelja</label>
-                <input
-                  type="text"
-                  id="jmbgRoditelja"
-                  name="jmbgRoditelja"
-                  class="form-control"
-                  [(ngModel)]="noviZahtev.dete.jmbgRoditelja"
-                  required
-                  maxlength="13"
-                  placeholder="9876543210987"
-                />
-              </div>
             </div>
 
             <div class="form-section">
@@ -110,8 +97,8 @@ import { AuthService } from "../../services/auth.service";
                 >
                   <option value="">Izaberite vrtić</option>
                   <option *ngFor="let vrtic of vrtici" [value]="vrtic.id">
-                    {{ vrtic.naziv }} - {{ vrtic.adresa }} ({{
-                      vrtic.slobodnaMesta
+                    {{ vrtic.naziv }} ({{
+                      vrtic.brojSlobodnihMesta
                     }}
                     slobodnih mesta)
                   </option>
@@ -143,16 +130,15 @@ import { AuthService } from "../../services/auth.service";
           <div *ngIf="vrtici.length > 0" class="vrtici-lista">
             <div *ngFor="let vrtic of vrtici" class="vrtic-item">
               <h5>{{ vrtic.naziv }}</h5>
-              <p><strong>Adresa:</strong> {{ vrtic.adresa }}</p>
               <p><strong>Kapacitet:</strong> {{ vrtic.kapacitet }}</p>
               <p>
                 <strong>Slobodna mesta:</strong>
                 <span
                   [class]="
-                    vrtic.slobodnaMesta > 0 ? 'text-success' : 'text-danger'
+                    vrtic.brojSlobodnihMesta > 0 ? 'text-success' : 'text-danger'
                   "
                 >
-                  {{ vrtic.slobodnaMesta }}
+                  {{ vrtic.brojSlobodnihMesta }}
                 </span>
               </p>
             </div>
@@ -366,23 +352,20 @@ export class PredskolskeComponent implements OnInit {
           {
             id: "1",
             naziv: 'Vrtić "Sunce"',
-            adresa: "Knez Mihailova 15, Beograd",
             kapacitet: 100,
-            brojSlobodnaMesta: 15,
+            brojSlobodnihMesta: 15,
           },
           {
             id: "2",
             naziv: 'Vrtić "Duga"',
-            adresa: "Makedonska 25, Beograd",
             kapacitet: 80,
-            brojSlobodnaMesta: 8,
+            brojSlobodnihMesta: 8,
           },
           {
             id: "3",
             naziv: 'Vrtić "Cveće"',
-            adresa: "Terazije 10, Beograd",
             kapacitet: 120,
-            brojSlobodnaMesta: 0,
+            brojSlobodnihMesta: 0,
           },
         ];
       },
@@ -436,4 +419,3 @@ export class PredskolskeComponent implements OnInit {
     };
   }
 }
-*/

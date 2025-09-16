@@ -134,8 +134,27 @@ import { AuthService } from "../../services/auth.service";
 })
 export class HeaderComponent {
   authService = inject(AuthService);
+  authStatus: { type: string; message: string } | null = null;
 
   logout() {
-    this.authService.logout();
+    console.log("Logout");
+    this.authService.logout().subscribe({
+      next: () => {
+        // Logout successful - user data is already cleared in the service
+        this.authStatus = {
+          type: "alert-success",
+          message: "✅ Uspešno ste se odjavili"
+        };
+      },
+      error: (error) => {
+        // Even if server request fails, clear local data
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("currentUser");
+        this.authStatus = {
+          type: "alert-warning",
+          message: "⚠️ Odjavljeni ste lokalno (server nedostupan)"
+        };
+      }
+    });
   }
 }

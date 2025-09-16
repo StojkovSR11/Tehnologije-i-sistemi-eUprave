@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
+import { RoleService, UserRole } from "../../services/role.service";
 import { ZdravstvoService } from "../../services/zdravstvo.service";
 import { PredskolskeService } from "../../services/predskolske.service";
 
@@ -15,26 +16,47 @@ import { PredskolskeService } from "../../services/predskolske.service";
       <p>Pristupite digitalnim servisima Republike Srbije jednostavno i brzo</p>
     </div>
 
-    <div class="services grid grid-2">
+    <!-- Ukoliko korisnik nije ulogovan -->
+    <div *ngIf="!authService.isLoggedIn()" class="services grid grid-2">
       <div class="card service-card">
-        <h3>🔐 Autentifikacija</h3>
-        <p>SSO prijava za sve državne servise</p>
+        <h3>🔐 Prijava</h3>
+        <p>Prijavite se za pristup eGovernment servisima</p>
         <div class="service-actions">
-          <a routerLink="/auth" class="btn">Prijavite se</a>
-          <button class="btn btn-secondary" (click)="testAuth()">
-            Test servis
+          <a routerLink="/login" class="btn">Prijavite se</a>
+          <a routerLink="/register" class="btn btn-secondary">Registrujte se</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Servisi za ulogovane korisnike -->
+    <div *ngIf="authService.isLoggedIn()" class="services grid grid-2">
+      
+      <!-- Admin panel - samo za administratore -->
+      <div *ngIf="roleService.isAdmin()" class="card service-card admin-card">
+        <h3>⚙️ Admin Panel</h3>
+        <p>Upravljanje korisnicima i sistemom</p>
+        <div class="service-actions">
+          <a routerLink="/admin" class="btn btn-danger">Admin Panel</a>
+          <button class="btn btn-secondary" (click)="testAllServices()">
+            Test svih servisa
           </button>
         </div>
-        <div *ngIf="authStatus" [ngClass]="authStatus.type" class="alert">
-          {{ authStatus.message }}
+        <div *ngIf="systemStatus" [ngClass]="systemStatus.type" class="alert">
+          {{ systemStatus.message }}
         </div>
       </div>
 
-      <div class="card service-card">
+      <!-- Zdravstvo - osnovne funkcionalnosti za građane, napredne za lekare -->
+      <div *ngIf="roleService.canAccessBasicServices()" class="card service-card">
         <h3>🏥 Zdravstvo</h3>
-        <p>Zakazivanje pregleda, uputi, zdravstvena knjižica</p>
+        <p *ngIf="roleService.isCitizen()">Zakazivanje pregleda, zdravstvena knjižica</p>
+        <p *ngIf="roleService.isDoctor()">Upravljanje pacijentima, medicinski izveštaji</p>
+        <p *ngIf="roleService.isAdmin()">Potpuno upravljanje zdravstvenim sistemom</p>
         <div class="service-actions">
           <a routerLink="/zdravstvo" class="btn">Otvori servis</a>
+          <a *ngIf="roleService.canAccessHealthAdvanced()" routerLink="/zdravstvo/admin" class="btn btn-success">
+            Napredne opcije
+          </a>
           <button class="btn btn-secondary" (click)="testZdravstvo()">
             Test servis
           </button>
@@ -48,11 +70,16 @@ import { PredskolskeService } from "../../services/predskolske.service";
         </div>
       </div>
 
-      <div class="card service-card">
+      <!-- Predškolske ustanove - osnovne funkcionalnosti za građane -->
+      <div *ngIf="roleService.canAccessBasicServices()" class="card service-card">
         <h3>🎓 Predškolske ustanove</h3>
-        <p>Upis u vrtić, zahtevi, potvrde</p>
+        <p *ngIf="roleService.isCitizen()">Upis u vrtić, zahtevi, potvrde</p>
+        <p *ngIf="roleService.isAdmin()">Upravljanje vrtićima i zahtevima</p>
         <div class="service-actions">
           <a routerLink="/predskolske" class="btn">Otvori servis</a>
+          <a *ngIf="roleService.canAccessPreschoolAdvanced()" routerLink="/predskolske/admin" class="btn btn-success">
+            Upravljanje
+          </a>
           <button class="btn btn-secondary" (click)="testPredskolske()">
             Test servis
           </button>
@@ -66,45 +93,38 @@ import { PredskolskeService } from "../../services/predskolske.service";
         </div>
       </div>
 
+      <!-- Autentifikacija - test servisa -->
       <div class="card service-card">
-        <h3>🔧 Status sistema</h3>
-        <p>Provera rada svih servisa</p>
+        <h3>🔐 Autentifikacija</h3>
+        <p>Status autentifikacije i test servisa</p>
         <div class="service-actions">
-          <button class="btn" (click)="testAllServices()">
-            Test svih servisa
+          <button class="btn btn-secondary" (click)="testAuth()">
+            Test servis
+          </button>
+          <button class="btn btn-danger" (click)="logout()">
+            Odjavi se
           </button>
         </div>
-        <div *ngIf="systemStatus" [ngClass]="systemStatus.type" class="alert">
-          {{ systemStatus.message }}
+        <div *ngIf="authStatus" [ngClass]="authStatus.type" class="alert">
+          {{ authStatus.message }}
         </div>
       </div>
     </div>
 
     <div class="card mt-20" *ngIf="authService.isLoggedIn()">
-      <h3>Brzi pristup</h3>
+      <h3>Korisnički profil</h3>
       <p>
         Ulogovani ste kao:
         <strong>{{ authService.getCurrentUser()?.name }}</strong>
+        <span class="role-badge" [ngClass]="'role-' + authService.getCurrentUser()?.role">
+          {{ authService.getCurrentUser()?.role }}
+        </span>
       </p>
-      <div class="service-actions">
+      <div class="service-actions" *ngIf="roleService.canAccessBasicServices()">
         <a routerLink="/zdravstvo" class="btn btn-success">Zakažite pregled</a>
         <a routerLink="/predskolske" class="btn btn-success">Upišite dete</a>
       </div>
     </div>
-
-<div class="container">
-  <h1>Dobrodošli na eUprava aplikaciju</h1>
-
-  <div class="dugmad">
-    <a routerLink="/login">
-      <button>Prijava</button>
-    </a>
-
-    <a routerLink="/register">
-      <button>Registracija</button>
-    </a>
-  </div>
-</div>
 
 
   `,
@@ -131,12 +151,49 @@ import { PredskolskeService } from "../../services/predskolske.service";
       }
 
       .service-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
       }
 
       .service-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+      }
+
+      .admin-card {
+        border-left: 4px solid #dc3545;
+      }
+
+      .role-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-left: 8px;
+        text-transform: uppercase;
+      }
+
+      .role-admin {
+        background-color: #dc3545;
+        color: white;
+      }
+
+      .role-citizen {
+        background-color: #28a745;
+        color: white;
+      }
+
+      .role-doctor {
+        background-color: #007bff;
+        color: white;
+      }
+
+      .mt-20 {
+        margin-top: 20px;
       }
 
       .service-card h3 {
@@ -176,6 +233,7 @@ import { PredskolskeService } from "../../services/predskolske.service";
 })
 export class HomeComponent implements OnInit {
   authService = inject(AuthService);
+  roleService = inject(RoleService);
   private zdravstvoService = inject(ZdravstvoService);
   private predskolskeService = inject(PredskolskeService);
 
@@ -256,5 +314,27 @@ export class HomeComponent implements OnInit {
         message: "✅ Testiranje završeno",
       };
     }, 2000);
+  }
+
+  logout() {
+    console.log("Logout");
+    this.authService.logout().subscribe({
+      next: () => {
+        // Logout successful - user data is already cleared in the service
+        this.authStatus = {
+          type: "alert-success",
+          message: "✅ Uspešno ste se odjavili"
+        };
+      },
+      error: (error) => {
+        // Even if server request fails, clear local data
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("currentUser");
+        this.authStatus = {
+          type: "alert-warning",
+          message: "⚠️ Odjavljeni ste lokalno (server nedostupan)"
+        };
+      }
+    });
   }
 }
