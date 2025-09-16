@@ -19,6 +19,14 @@ export interface LoginResponse {
   user: User;
 }
 
+// Novi tip za registraciju
+export interface RegisterRequest {
+  jmbg: string;
+  email: string;
+  name: string;
+  password: string;
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -48,6 +56,11 @@ export class AuthService {
           this.currentUserSubject.next(response.user);
         })
       );
+  }
+
+  // NOVO: REGISTER METOD
+  register(data: RegisterRequest): Observable<any> {
+    return this.http.post(`${this.API_URL}/register`, data);
   }
 
   logout(): Observable<any> {

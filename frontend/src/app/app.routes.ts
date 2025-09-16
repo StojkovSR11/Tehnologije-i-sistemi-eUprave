@@ -21,9 +21,14 @@ export const routes: Routes = [
       ),
   },
   {
-    path: "auth",
+    path: "login",
     loadComponent: () =>
-      import("./pages/auth/auth.component").then((m) => m.AuthComponent),
+      import("./pages/auth/login/login.component").then((m) => m.LoginComponent),
+  },
+  {
+    path: "register",
+    loadComponent: () =>
+      import("./pages/auth/register/register.component").then((m) => m.RegisterComponent),
   },
   {
     path: "**",
