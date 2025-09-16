@@ -91,6 +91,22 @@ import { PredskolskeService } from "../../services/predskolske.service";
         <a routerLink="/predskolske" class="btn btn-success">Upišite dete</a>
       </div>
     </div>
+
+<div class="container">
+  <h1>Dobrodošli na eUprava aplikaciju</h1>
+
+  <div class="dugmad">
+    <a routerLink="/login">
+      <button>Prijava</button>
+    </a>
+
+    <a routerLink="/register">
+      <button>Registracija</button>
+    </a>
+  </div>
+</div>
+
+
   `,
   styles: [
     `
