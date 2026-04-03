@@ -28,15 +28,19 @@ func (s *DeteService) CreateDete(dete *model.Dete) (*model.Dete, error) {
 		return nil, errors.New("sva polja su obavezna")
 	}
 
-	// Primer: dodatna validacija datuma rođenja
+	// validacija datuma
 	if dete.DatumRodj.After(time.Now()) {
-		return nil, errors.New("datum rođenja ne može biti u budućnosti")
+		return nil, errors.New("datum rodjenja ne moze biti u buducnosti")
 	}
 
-	_, err := s.repo.Create(dete)
+	result, err := s.repo.Create(dete)
 	if err != nil {
 		return nil, err
 	}
+
+	// 🔥 KLJUCNO — postavi ID iz baze
+	dete.ID = result.InsertedID.(primitive.ObjectID)
+
 	return dete, nil
 }
 

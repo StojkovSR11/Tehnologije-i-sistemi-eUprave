@@ -56,9 +56,11 @@ func (r *ZahtevRepository) GetByID(id primitive.ObjectID) (*model.ZahtevZaUpis, 
 func (r *ZahtevRepository) Update(id primitive.ObjectID, zahtev *model.ZahtevZaUpis) (*mongo.UpdateResult, error) {
 	update := bson.M{
 		"$set": bson.M{
-			"detetID":   zahtev.DeteID,
-			"status":    zahtev.Status,
-			"datumPodnosenja": zahtev.DatumPodnosenja,
+			"dete_id":          zahtev.DeteID,
+			"vrtic_id":         zahtev.VrticID,
+			"status":           zahtev.Status,
+			"datumPodnosenja":  zahtev.DatumPodnosenja,
+			"napomena":         zahtev.Napomena,
 		},
 	}
 	return r.collection.UpdateByID(r.ctx, id, update)

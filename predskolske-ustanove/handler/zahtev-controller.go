@@ -79,3 +79,38 @@ func (h *ZahtevHandler) ObrisiZahtev(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "zahtev obrisan"})
 }
+
+
+func (h *ZahtevHandler) OdobriZahtev(c *gin.Context) {
+	id := c.Param("id")
+
+	zahtev, err := h.service.OdobriZahtev(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, zahtev)
+}
+
+
+func (h *ZahtevHandler) OdbijZahtev(c *gin.Context) {
+	id := c.Param("id")
+
+	var body struct {
+		Napomena string `json:"napomena"`
+	}
+
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "neispravni podaci"})
+		return
+	}
+
+	zahtev, err := h.service.OdbijZahtev(id, body.Napomena)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, zahtev)
+}

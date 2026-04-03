@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { AuthService } from "./auth.service";
 
 export interface Dete {
+   id?: string;
   ime: string;
   prezime: string;
   jmbg: string;
@@ -13,7 +14,8 @@ export interface Dete {
 
 export interface ZahtevZaUpis {
   id?: string;
-  dete: Dete;
+  deteId: string; 
+  //dete: Dete;
   vrticId: string;
   status?: string;
   datumZahteva?: string;
@@ -65,7 +67,7 @@ export class PredskolskeService {
     });
   }
 
-  odobriZahtev(id: string): Observable<any> {
+  /*odobriZahtev(id: string): Observable<any> {
     return this.http.post(
       `${this.API_URL}/zahtevi/${id}/odobri`,
       {},
@@ -73,7 +75,7 @@ export class PredskolskeService {
         headers: this.getHeaders(),
       }
     );
-  }
+  }*/
 
   // Vrtići
   /*getVrtici(): Observable<Vrtic[]> {
@@ -179,4 +181,26 @@ obrisiZahtev(id: string): Observable<any> {
   });
 }
 
+
+//prva funkcionalnost - upisivanje deteta u vrtic
+
+odobriZahtev(id: string): Observable<any> {
+  return this.http.put(
+    `${this.API_URL}/zahtev/${id}/odobri`,
+    {},
+    {
+      headers: this.getHeaders(),
+    }
+  );
+}
+
+odbijZahtev(id: string, napomena: string): Observable<any> {
+  return this.http.put(
+    `${this.API_URL}/zahtev/${id}/odbij`,
+    { napomena },
+    {
+      headers: this.getHeaders(),
+    }
+  );
+}
 }

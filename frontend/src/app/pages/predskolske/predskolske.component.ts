@@ -287,7 +287,7 @@ export class PredskolskeComponent implements OnInit {
   private predskolskeService = inject(PredskolskeService);
   authService = inject(AuthService);
 
-  noviZahtev: ZahtevZaUpis = {
+  noviZahtev = {
     dete: {
       ime: "",
       prezime: "",
@@ -309,7 +309,7 @@ export class PredskolskeComponent implements OnInit {
     this.loadVrtici();
   }
 
-  podnesZahtev() {
+  /*podnesZahtev() {
     this.isLoading = true;
     this.zahtevStatus = null;
 
@@ -331,7 +331,62 @@ export class PredskolskeComponent implements OnInit {
         };
       },
     });
-  }
+  }*/
+
+  podnesZahtev() {
+  this.isLoading = true;
+  this.zahtevStatus = null;
+
+  // 1. prvo kreiramo dete
+  this.predskolskeService.dodajDete(this.noviZahtev.dete).subscribe({
+    next: (dete) => {
+
+      // ⚠️ Provera da li je ID deteta validan
+      if (!dete.id) {
+        this.isLoading = false;
+        this.zahtevStatus = {
+          type: "alert-error",
+          message: "❌ Greška: Dete nije kreirano, ID nije dostupan.",
+        };
+        return; // prekida dalje izvršavanje
+      }
+
+      // 2. pravimo zahtev sa deteId
+      const zahtev: ZahtevZaUpis = {
+        deteId: dete.id,
+        vrticId: this.noviZahtev.vrticId,
+      };
+
+      // 3. šaljemo zahtev
+      this.predskolskeService.dodajZahtev(zahtev).subscribe({
+        next: () => {
+          this.isLoading = false;
+          this.zahtevStatus = {
+            type: "alert-success",
+            message: "✅ Zahtev uspešno podnet!",
+          };
+          this.resetZahtevForm();
+          this.loadVrtici();
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.zahtevStatus = {
+            type: "alert-error",
+            message: error.message,
+          };
+        },
+      });
+    },
+    error: (error) => {
+      this.isLoading = false;
+      this.zahtevStatus = {
+        type: "alert-error",
+        message: error.message,
+      };
+    },
+  });
+}
+
 
   loadVrtici() {
     this.predskolskeService.getVrtici().subscribe({

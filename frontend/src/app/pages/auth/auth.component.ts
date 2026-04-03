@@ -213,9 +213,12 @@ export class AuthComponent {
     this.authService.login(this.credentials).subscribe({
       next: (response) => {
         this.isLoading = false;
+
+        const currentUser = this.authService.getCurrentUser();
+
         this.status = {
           type: "alert-success",
-          message: `✅ Uspešna prijava! Dobrodošli ${response.user.name}`,
+          message: `✅ Uspešna prijava! Dobrodošli ${currentUser?.name}`,
         };
 
         // Redirect to home after successful login

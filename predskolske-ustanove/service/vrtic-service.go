@@ -27,14 +27,18 @@ func (s *VrticService) CreateVrtic(vrtic *model.Vrtic) (*model.Vrtic, error) {
 		return nil, errors.New("naziv i kapacitet su obavezni")
 	}
 
+	// sva mjesta su slobodna na pocetku
 	vrtic.BrojSlobodnihMesta = vrtic.Kapacitet
-	_, err := s.repo.Create(vrtic)
+
+	result, err := s.repo.Create(vrtic)
 	if err != nil {
 		return nil, err
 	}
+
+	vrtic.ID = result.InsertedID.(primitive.ObjectID)
+
 	return vrtic, nil
 }
-
 // Preuzimanje svih vrtića
 func (s *VrticService) GetAllVrtici() ([]model.Vrtic, error) {
 	return s.repo.GetAll()

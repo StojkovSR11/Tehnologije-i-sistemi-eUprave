@@ -18,13 +18,15 @@ export class ZahteviComponent implements OnInit {
   vrtici: Vrtic[] = [];
 
   noviZahtev: ZahtevZaUpis = {
-  dete: {
+ /* dete: {
     ime: "",
     prezime: "",
     jmbg: "",
     datumRodj: "",
     korisnikId: "",
-  },
+  },*/
+
+  deteId: "",
   vrticId: "",
   status: "NA_CEKANJU",
   datumZahteva: new Date().toISOString().split("T")[0],
@@ -61,19 +63,13 @@ export class ZahteviComponent implements OnInit {
   }
 
   dodajZahtev() {
-    if (!this.noviZahtev.dete || !this.noviZahtev.vrticId) return;
+    if (!this.noviZahtev.deteId || !this.noviZahtev.vrticId) return;
 
     this.isLoading = true;
     this.predskolskeService.dodajZahtev(this.noviZahtev).subscribe({
       next: (res) => {
         this.statusMessage = { type: "alert-success", message: "Zahtev dodat!" };
-        this.noviZahtev.dete = {
-  ime: '',
-  prezime: '',
-  jmbg: '',
-  datumRodj: '',
-  korisnikId: ''
-};
+        this.noviZahtev.deteId = "";
 
 
         this.noviZahtev.vrticId = "";
@@ -93,4 +89,38 @@ export class ZahteviComponent implements OnInit {
       error: (err) => console.error(err),
     });
   }
+
+
+  //prva funkcionalnost - upisivanje deteta u vrtic
+
+  // Dohvatanje imena deteta po ID-ju
+getDeteIme(deteId: string) {
+  const dete = this.deca.find(d => d.korisnikId === deteId);
+  return dete ? `${dete.ime} ${dete.prezime}` : "Nepoznato dete";
+}
+
+// Dohvatanje naziva vrtića po ID-ju
+getVrticNaziv(vrticId: string) {
+  const vrtic = this.vrtici.find(v => v.id === vrticId);
+  return vrtic ? vrtic.naziv : "Nepoznati vrtic";
+}
+
+// Odobravanje zahteva
+odobriZahtev(zahtevId: string) {
+  this.predskolskeService.odobriZahtev(zahtevId).subscribe({
+    next: () => this.loadZahtevi(),
+    error: (err) => console.error("Greška pri odobravanju:", err),
+  });
+}
+
+// Odbijanje zahteva sa unosom napomene
+odbijZahtevPrompt(zahtevId: string) {
+  const napomena = prompt("Unesite razlog odbijanja:");
+  if (!napomena) return;
+
+  this.predskolskeService.odbijZahtev(zahtevId, napomena).subscribe({
+    next: () => this.loadZahtevi(),
+    error: (err) => console.error("Greška pri odbijanju:", err),
+  });
+}
 }

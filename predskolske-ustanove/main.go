@@ -94,6 +94,9 @@ func main() {
 		api.GET("/zahtev", zahtevHandler.SviZahtevi)
 		api.PUT("/zahtev/:id", zahtevHandler.AzurirajZahtev)
 		api.DELETE("/zahtev/:id", zahtevHandler.ObrisiZahtev)
+
+		api.PUT("/zahtev/:id/odobri", zahtevHandler.OdobriZahtev)
+        api.PUT("/zahtev/:id/odbij", zahtevHandler.OdbijZahtev)
 	}
 
 	log.Println("Predskolske ustanove service starting on port 8081")
