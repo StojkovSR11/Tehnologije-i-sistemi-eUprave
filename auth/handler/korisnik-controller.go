@@ -4,7 +4,7 @@ import (
 	"auth/model"
 	"auth/service"
 	"net/http"
-	"strings"
+
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,34 +20,35 @@ func NewKorisnikHandler(s *service.KorisnikService) *KorisnikHandler {
 // Registracija korisnika
 func (h *KorisnikHandler) RegistrujKorisnika(c *gin.Context) {
 	var body struct {
-		JMBG     string `json:"jmbg"`
-		Email    string `json:"email"`
-		Name     string `json:"name"`
-		Password string `json:"password"`
-	}
+    	JMBG     string `json:"jmbg"`
+    	Email    string `json:"email"`
+    	Ime      string `json:"ime"`
+    	Prezime  string `json:"prezime"`
+    	Password string `json:"password"`
+    }
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "neispravni podaci"})
 		return
 	}
 
 	// Parsiranje imena i prezimena iz jednog polja
-	nameParts := strings.Fields(body.Name)
+	/*nameParts := strings.Fields(body.Name)
 	var ime, prezime string
 	if len(nameParts) >= 1 {
 		ime = nameParts[0]
 	}
 	if len(nameParts) >= 2 {
 		prezime = strings.Join(nameParts[1:], " ")
-	}
+	}*/
 
 	korisnik := model.Korisnik{
-		JMBG:     body.JMBG,
-		Email:    body.Email,
-		Password: body.Password,
-		Ime:      ime,
-		Prezime:  prezime,
-		Uloga:    "citizen", // Default uloga
-	}
+    	JMBG:     body.JMBG,
+    	Email:    body.Email,
+    	Password: body.Password, // hash-uj kasnije u servisu
+    	Ime:      body.Ime,
+    	Prezime:  body.Prezime,
+    	Uloga:    "citizen",
+    }
 
 	novi, err := h.service.RegistrujKorisnika(&korisnik)
 	if err != nil {

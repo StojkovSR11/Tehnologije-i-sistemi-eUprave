@@ -36,7 +36,8 @@ func main() {
 	// MongoDB konekcija
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	//clientOptions := options.Client().ApplyURI("mongodb://localhost:27017")
+	clientOptions := options.Client().ApplyURI("mongodb://admin:password@mongodb:27017/egovernment?authSource=admin")
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		log.Fatal("Greska pri povezivanju sa MongoDB:", err)
@@ -47,17 +48,20 @@ func main() {
 	deteRepo := repository.NewDeteRepository(db)
 	vrticRepo := repository.NewVrticRepository(db)
 	zahtevRepo := repository.NewZahtevRepository(db)
+	grupaRepo := repository.NewGrupaRepository(db)
 
 	// Inicijalizacija service-ja
 	deteService := service.NewDeteService(deteRepo)
 	vrticService := service.NewVrticService(vrticRepo)
 	zahtevService := service.NewZahtevService(zahtevRepo, deteRepo, vrticRepo)
+	grupaService := service.NewGrupaService(grupaRepo, deteRepo)
 
 
 	// Inicijalizacija handler-a
 	deteHandler := handler.NewDeteHandler(deteService)
 	vrticHandler := handler.NewVrticHandler(vrticService)
 	zahtevHandler := handler.NewZahtevHandler(zahtevService)
+	grupaHandler := handler.NewGrupaHandler(grupaService)
 
 	// Gin router
 	r := gin.Default()
@@ -97,6 +101,16 @@ func main() {
 
 		api.PUT("/zahtev/:id/odobri", zahtevHandler.OdobriZahtev)
         api.PUT("/zahtev/:id/odbij", zahtevHandler.OdbijZahtev)
+
+        // Grupa
+        api.POST("/grupa", grupaHandler.KreirajGrupu)
+        api.GET("/grupa/:id", grupaHandler.GrupaPoID)
+        api.GET("/grupe/:vrticID", grupaHandler.SveGrupe)
+        api.PUT("/grupa/:id", grupaHandler.AzurirajGrupu)
+        api.DELETE("/grupa/:id", grupaHandler.ObrisiGrupu)
+
+
+        api.POST("/grupa/dodaj-dete", grupaHandler.DodajDeteUGrupu)
 	}
 
 	log.Println("Predskolske ustanove service starting on port 8081")

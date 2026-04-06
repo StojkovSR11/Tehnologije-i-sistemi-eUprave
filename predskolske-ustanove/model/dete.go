@@ -12,4 +12,5 @@ type Dete struct {
 	Prezime   string             `bson:"prezime" json:"prezime"`
 	DatumRodj time.Time          `bson:"datumRodj" json:"datumRodj"`
 	Korisnik  primitive.ObjectID `bson:"korisnik_id" json:"korisnikId"` // veza ka Korisnik
+	 GrupaID  string `bson:"grupaID,omitempty"` // ID grupe kojoj dete pripada
 }

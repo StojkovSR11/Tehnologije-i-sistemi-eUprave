@@ -20,7 +20,8 @@ func main() {
 	// Povezivanje na MongoDB
 	mongoURI := os.Getenv("MONGODB_URI")
 	if mongoURI == "" {
-		mongoURI = "mongodb://localhost:27017"
+		//mongoURI = "mongodb://localhost:27017"
+		mongoURI = "mongodb://admin:password@mongodb:27017/authdb?authSource=admin"
 	}
 
 	clientOptions := options.Client().ApplyURI(mongoURI)
@@ -37,7 +38,10 @@ func main() {
 	}
 	defer client.Disconnect(ctx)
 
-	db := client.Database("egovernment") // ili iz .env
+	//db := client.Database("egovernment") // ili iz .env
+
+	db := client.Database("authdb")
+
 	userCollection := db.Collection("korisnici")
 
 	// Kreiranje repo, servisa i handlera

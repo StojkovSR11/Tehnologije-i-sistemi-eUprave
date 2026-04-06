@@ -29,15 +29,18 @@ func (r *DeteRepository) Create(dete *model.Dete) (*mongo.InsertOneResult, error
 func (r *DeteRepository) GetAll() ([]model.Dete, error) {
 	cursor, err := r.collection.Find(r.ctx, bson.M{})
 	if err != nil {
-		return nil, err
+		return []model.Dete{}, err
 	}
 	defer cursor.Close(r.ctx)
 
-	var deca []model.Dete
+	//var deca []model.Dete
+
+	deca := []model.Dete{}
+
 	for cursor.Next(r.ctx) {
 		var d model.Dete
 		if err := cursor.Decode(&d); err != nil {
-			return nil, err
+			return []model.Dete{}, err
 		}
 		deca = append(deca, d)
 	}

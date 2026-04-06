@@ -50,7 +50,7 @@ export class ZahteviComponent implements OnInit {
     });
   }
 
-  loadDeca() {
+  /*loadDeca() {
     this.predskolskeService.getDeca().subscribe({
       next: (res) => (this.deca = res),
     });
@@ -60,7 +60,26 @@ export class ZahteviComponent implements OnInit {
     this.predskolskeService.getVrtici().subscribe({
       next: (res) => (this.vrtici = res),
     });
-  }
+  }*/
+
+
+    loadDeca() {
+  this.predskolskeService.getDeca().subscribe({
+    next: (res) => {
+      console.log("DECA:", res);
+      this.deca = res;
+    },
+  });
+}
+
+loadVrtici() {
+  this.predskolskeService.getVrtici().subscribe({
+    next: (res) => {
+      console.log("VRTICI:", res);
+      this.vrtici = res;
+    },
+  });
+}
 
   dodajZahtev() {
     if (!this.noviZahtev.deteId || !this.noviZahtev.vrticId) return;
@@ -94,8 +113,13 @@ export class ZahteviComponent implements OnInit {
   //prva funkcionalnost - upisivanje deteta u vrtic
 
   // Dohvatanje imena deteta po ID-ju
-getDeteIme(deteId: string) {
+/*getDeteIme(deteId: string) {
   const dete = this.deca.find(d => d.korisnikId === deteId);
+  return dete ? `${dete.ime} ${dete.prezime}` : "Nepoznato dete";
+}*/
+
+getDeteIme(deteId: string) {
+  const dete = this.deca.find(d => d.id === deteId);
   return dete ? `${dete.ime} ${dete.prezime}` : "Nepoznato dete";
 }
 

@@ -59,10 +59,14 @@ func (s *VrticService) UpdateVrtic(id string, vrtic *model.Vrtic) (*model.Vrtic,
 	if err != nil {
 		return nil, err
 	}
+
 	_, err = s.repo.Update(objectID, vrtic)
 	if err != nil {
 		return nil, err
 	}
+
+	// ✅ Setujemo pravi ID da bi JSON odgovorio ispravno
+	vrtic.ID = objectID
 	return vrtic, nil
 }
 

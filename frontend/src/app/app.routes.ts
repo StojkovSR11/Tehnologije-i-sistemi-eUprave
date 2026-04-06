@@ -2,6 +2,8 @@ import { Routes } from "@angular/router";
 import { AuthGuard } from "./guards/auth.guard";
 import { RoleGuard } from "./guards/role.guard";
 
+
+
 export const routes: Routes = [
   {
     path: "",
@@ -51,6 +53,19 @@ export const routes: Routes = [
         (m) => m.PredskolskeComponent
       ),
   },
+
+//za grupe?
+{
+  path: "predskolske/grupe",
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['citizen', 'admin'] },
+  loadComponent: () =>
+    import('./pages/predskolske/grupa/grupa.component').then(
+      (m) => m.GrupeComponent
+    ),
+},
+
+
   {
     path: "predskolske/admin",
     canActivate: [AuthGuard, RoleGuard],

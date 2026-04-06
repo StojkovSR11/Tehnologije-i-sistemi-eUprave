@@ -29,15 +29,18 @@ func (r *VrticRepository) Create(vrtic *model.Vrtic) (*mongo.InsertOneResult, er
 func (r *VrticRepository) GetAll() ([]model.Vrtic, error) {
 	cursor, err := r.collection.Find(r.ctx, bson.M{})
 	if err != nil {
-		return nil, err
+		return []model.Vrtic{}, err
 	}
 	defer cursor.Close(r.ctx)
 
-	var vrtici []model.Vrtic
+	//var vrtici []model.Vrtic
+
+	vrtici := []model.Vrtic{}
+
 	for cursor.Next(r.ctx) {
 		var v model.Vrtic
 		if err := cursor.Decode(&v); err != nil {
-			return nil, err
+			return []model.Vrtic{}, err
 		}
 		vrtici = append(vrtici, v)
 	}

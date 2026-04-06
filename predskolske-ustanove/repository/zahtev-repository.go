@@ -29,15 +29,18 @@ func (r *ZahtevRepository) Create(zahtev *model.ZahtevZaUpis) (*mongo.InsertOneR
 func (r *ZahtevRepository) GetAll() ([]model.ZahtevZaUpis, error) {
 	cursor, err := r.collection.Find(r.ctx, bson.M{})
 	if err != nil {
-		return nil, err
+		return []model.ZahtevZaUpis{}, err
 	}
 	defer cursor.Close(r.ctx)
 
-	var zahtevi []model.ZahtevZaUpis
+	//var zahtevi []model.ZahtevZaUpis
+
+	zahtevi := []model.ZahtevZaUpis{}
+
 	for cursor.Next(r.ctx) {
 		var z model.ZahtevZaUpis
 		if err := cursor.Decode(&z); err != nil {
-			return nil, err
+			return []model.ZahtevZaUpis{}, err
 		}
 		zahtevi = append(zahtevi, z)
 	}

@@ -44,6 +44,15 @@ export interface Obavestenje {
   procitano?: boolean;
 }
 
+
+export interface Grupa {
+  id?: string;
+  naziv: string;
+  vrticID: string;
+  kapacitet: number;
+  listaDece?: string[];
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -62,7 +71,7 @@ export class PredskolskeService {
 
   // Zahtevi za upis
   podnesZahtev(zahtev: ZahtevZaUpis): Observable<any> {
-    return this.http.post(`${this.API_URL}/zahtevi`, zahtev, {
+    return this.http.post(`${this.API_URL}/zahtev`, zahtev, {
       headers: this.getHeaders(),
     });
   }
@@ -108,7 +117,7 @@ export class PredskolskeService {
 
   testAPI(): Observable<any> {
     return this.http.post(
-      `${this.API_URL}/zahtevi`,
+      `${this.API_URL}/zahtev`,
       { test: true },
       {
         headers: this.getHeaders(),
@@ -203,4 +212,38 @@ odbijZahtev(id: string, napomena: string): Observable<any> {
     }
   );
 }
+
+//druga funkcionalnost rasporedjivanje u grupe
+
+// GRUPE
+
+getGrupe(vrticID: string): Observable<Grupa[]> {
+  return this.http.get<Grupa[]>(`${this.API_URL}/grupe/${vrticID}`, {
+    headers: this.getHeaders(),
+  });
+}
+
+getGrupaById(id: string): Observable<Grupa> {
+  return this.http.get<Grupa>(`${this.API_URL}/grupa/${id}`, {
+    headers: this.getHeaders(),
+  });
+}
+
+dodajDeteUGrupu(deteID: string, grupaID: string): Observable<any> {
+  return this.http.post(
+    `${this.API_URL}/grupa/dodaj-dete`,
+    { deteID, grupaID },
+    {
+      headers: this.getHeaders(),
+    }
+  );
+}
+
+
+dodajGrupu(grupa: Grupa): Observable<Grupa> {
+  return this.http.post<Grupa>(`${this.API_URL}/grupa`, grupa, {
+    headers: this.getHeaders(),
+  });
+}
+
 }

@@ -1,0 +1,39 @@
+<div class="deca-container">
+  <h2>Lista grupa</h2>
+
+  <ul>
+    <li *ngFor="let grupa of grupe">
+      <b>{{ grupa.naziv }}</b> 
+      - Kapacitet: {{ grupa.kapacitet }}
+      - Broj dece: {{ grupa.listaDece?.length || 0 }}
+
+      <button (click)="dodajDete(grupa.id!)">
+        Dodaj dete
+      </button>
+    </li>
+  </ul>
+
+  <!-- 🔵 KREIRANJE GRUPE (KAO DETE) -->
+  <h3>Dodaj novu grupu</h3>
+
+  <form (ngSubmit)="dodajGrupu()">
+    <div>
+      <label>Naziv:</label>
+      <input type="text" [(ngModel)]="novaGrupa.naziv" name="naziv" required>
+    </div>
+
+    <div>
+      <label>Vrtic ID:</label>
+      <input type="text" [(ngModel)]="novaGrupa.vrticID" name="vrticID" required>
+    </div>
+
+    <div>
+      <label>Kapacitet:</label>
+      <input type="number" [(ngModel)]="novaGrupa.kapacitet" name="kapacitet" required>
+    </div>
+
+    <button type="submit">Dodaj grupu</button>
+  </form>
+
+  <p *ngIf="poruka">{{ poruka }}</p>
+</div>
