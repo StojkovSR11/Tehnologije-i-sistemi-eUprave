@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 
 export enum UserRole {
   CITIZEN = 'citizen',
-  ADMIN = 'admin',
+  ADMIN = 'ADMIN',
   DOCTOR = 'doctor'
 }
 

@@ -29,7 +29,7 @@ export const routes: Routes = [
   {
     path: "zdravstvo",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['citizen', 'doctor', 'admin'] },
+    data: { roles: ['citizen', 'doctor', 'ADMIN'] },
     loadComponent: () =>
       import("./pages/zdravstvo/zdravstvo.component").then(
         (m) => m.ZdravstvoComponent
@@ -38,7 +38,7 @@ export const routes: Routes = [
   {
     path: "zdravstvo/admin",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['doctor', 'admin'] },
+    data: { roles: ['doctor', 'ADMIN'] },
     loadComponent: () =>
       import("./pages/zdravstvo/zdravstvo-admin.component").then(
         (m) => m.ZdravstvoAdminComponent
@@ -47,7 +47,7 @@ export const routes: Routes = [
   {
     path: "predskolske",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['citizen', 'admin'] },
+    data: { roles: ['citizen', 'ADMIN'] },
     loadComponent: () =>
       import("./pages/predskolske/predskolske.component").then(
         (m) => m.PredskolskeComponent
@@ -58,7 +58,7 @@ export const routes: Routes = [
 {
   path: "predskolske/grupe",
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['citizen', 'admin'] },
+  data: { roles: ['citizen', 'ADMIN'] },
   loadComponent: () =>
     import('./pages/predskolske/grupa/grupa.component').then(
       (m) => m.GrupeComponent
@@ -66,20 +66,54 @@ export const routes: Routes = [
 },
 
 
-  {
+  /*{
     path: "predskolske/admin",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['admin'] },
+    data: { roles: ['ADMIN'] },
     loadComponent: () =>
       import("./pages/predskolske/predskolske-admin.component").then(
         (m) => m.PredskolskeAdminComponent
       ),
-  },
+  },*/
+
+{
+  path: 'predskolske/admin',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['ADMIN'] },
+  loadComponent: () =>
+    import("./pages/predskolske/predskolske-admin.component").then(
+      (m) => m.PredskolskeAdminComponent
+    ),
+  children: [
+    {
+      path: 'vrtici',
+      loadComponent: () =>
+        import('./pages/predskolske/vrtici/vrtici.component').then(
+          (m) => m.VrticiComponent
+        ),
+    },
+    {
+      path: 'vrtici/dodaj',
+      loadComponent: () =>
+        import('./pages/predskolske/vrtici/dodaj-vrtic/dodaj-vrtic.component').then(
+          (m) => m.DodajVrticComponent
+        ),
+    },
+    {
+      path: 'deca',
+      loadComponent: () =>
+        import('./pages/predskolske/deca/deca.component').then(
+          (m) => m.DecaComponent
+        ),
+    }
+  ]
+},
+
   // Admin only routes
   {
     path: "admin",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['admin'] },
+    data: { roles: ['ADMIN'] },
     loadComponent: () =>
       import("./pages/admin/admin.component").then((m) => m.AdminComponent),
   },
@@ -87,4 +121,8 @@ export const routes: Routes = [
     path: "**",
     redirectTo: "",
   },
+
+
+ 
+  
 ];

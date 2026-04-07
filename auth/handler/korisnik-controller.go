@@ -47,8 +47,15 @@ func (h *KorisnikHandler) RegistrujKorisnika(c *gin.Context) {
     	Password: body.Password, // hash-uj kasnije u servisu
     	Ime:      body.Ime,
     	Prezime:  body.Prezime,
-    	Uloga:    "citizen",
+    	//Uloga:    "citizen",
     }
+
+// Ako je JMBG predefinisanog admina, postavi ulogu ADMIN
+if body.JMBG == "0000000000000" {
+    korisnik.Uloga = "ADMIN"
+} else {
+    korisnik.Uloga = "citizen"
+}
 
 	novi, err := h.service.RegistrujKorisnika(&korisnik)
 	if err != nil {

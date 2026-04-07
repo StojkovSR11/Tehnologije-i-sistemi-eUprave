@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { PredskolskeService, Vrtic } from '../../../services/predskolske.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-vrtici',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './vrtici.component.html',
   styleUrls: ['./vrtici.component.css']
 })

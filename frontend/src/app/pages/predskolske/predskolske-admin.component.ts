@@ -1,9 +1,12 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { RoleService } from '../../services/role.service';
 import { PredskolskeService } from '../../services/predskolske.service';
+
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-predskolske-admin',
@@ -85,6 +88,9 @@ import { PredskolskeService } from '../../services/predskolske.service';
           </div>
         </div>
       </div>
+
+      
+<router-outlet></router-outlet>
 
       <!-- Brzi pristup -->
       <div class="quick-access">
@@ -195,6 +201,9 @@ import { PredskolskeService } from '../../services/predskolske.service';
   `]
 })
 export class PredskolskeAdminComponent implements OnInit {
+
+  constructor(private router: Router,private route: ActivatedRoute) {}
+
   authService = inject(AuthService);
   roleService = inject(RoleService);
   predskolskeService = inject(PredskolskeService);
@@ -214,27 +223,15 @@ export class PredskolskeAdminComponent implements OnInit {
     }
   }
 
-  loadVrtici() {
-    this.vrticiStatus = {
-      type: 'alert-info',
-      message: 'Učitavanje vrtića...'
-    };
-    
-    setTimeout(() => {
-      this.vrticiStatus = {
-        type: 'alert-success',
-        message: '✅ Učitano 12 vrtića (8 aktivnih, 4 u pripremi)'
-      };
-    }, 1000);
-  }
+  // Dugmad za vrtiće
+loadVrtici() {
+  // ovo ide direktno na child rutu 'vrtici' unutar admina
+  this.router.navigate(['/predskolske/admin/vrtici']);
+}
 
-  addVrtic() {
-    this.vrticiStatus = {
-      type: 'alert-info',
-      message: 'Funkcionalnost dodavanja vrtića će biti implementirana'
-    };
-  }
-
+addVrtic() {
+  this.router.navigate(['/predskolske/admin/vrtici/dodaj']);
+}
   loadDeca() {
     this.decaStatus = {
       type: 'alert-info',

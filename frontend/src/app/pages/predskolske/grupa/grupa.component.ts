@@ -7,6 +7,7 @@ import { FormsModule } from '@angular/forms';
   selector: 'app-grupe',
   templateUrl: './grupa.component.html',
   styleUrls: ['./grupa.component.css'],
+
   imports: [CommonModule, FormsModule],
   standalone: true,
 })

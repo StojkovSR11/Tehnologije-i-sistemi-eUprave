@@ -2,11 +2,12 @@ import { Component, OnInit, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 import { PredskolskeService, ZahtevZaUpis, Dete, Vrtic } from "../../../services/predskolske.service";
+import { RouterLink } from "@angular/router";
 
 @Component({
   selector: "app-zahtevi",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,RouterLink],
   templateUrl: "./zahtevi.component.html",
   styleUrls: ["./zahtevi.component.css"],
 })

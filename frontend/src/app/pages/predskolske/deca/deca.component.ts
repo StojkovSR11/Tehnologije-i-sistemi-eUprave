@@ -1,8 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { PredskolskeService, Dete } from '../../../services/predskolske.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-deca',
+    standalone: true,
+    imports: [CommonModule, FormsModule,RouterLink], 
   templateUrl: './deca.component.html',
   styleUrls: ['./deca.component.css']
 })

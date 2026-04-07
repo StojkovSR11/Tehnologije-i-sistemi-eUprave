@@ -130,7 +130,8 @@ export class AuthService {
       return {
         jmbg: tokenData.jmbg,
         name: tokenData.name || `${tokenData.ime} ${tokenData.prezime}`,
-        role: tokenData.role || tokenData.uloga
+        //role: tokenData.role || tokenData.uloga
+        role: (tokenData.role || tokenData.uloga)?.toUpperCase()
       };
     } catch (error) {
       console.error('Error decoding JWT token:', error);
