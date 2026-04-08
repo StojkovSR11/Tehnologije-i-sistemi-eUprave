@@ -1,11 +1,11 @@
-.vrtic-form label {
+.dete-form label {
   display: block;
   margin-bottom: 15px;
   font-weight: 500;
   color: #333;
 }
 
-.vrtic-form input {
+.dete-form input {
   width: 100%;
   padding: 10px;
   margin-top: 5px;

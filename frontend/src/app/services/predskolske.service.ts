@@ -10,6 +10,7 @@ export interface Dete {
   jmbg: string;
   datumRodj: string;
   korisnikId: string;
+  grupaID?: string;
 }
 
 export interface ZahtevZaUpis {
@@ -27,6 +28,8 @@ export interface Vrtic {
   //adresa: string;
   kapacitet: number;
   brojSlobodnihMesta: number;
+
+  brojUpisanihDece?: number;
 }
 
 export interface Potvrda {
@@ -144,6 +147,13 @@ getDeteById(id: string): Observable<Dete> {
   });
 }
 
+obrisiDete(id: string): Observable<void> {
+  return this.http.delete<void>(`${this.API_URL}/dete/${id}`, {
+    headers: this.getHeaders(),
+  });
+}
+
+
 //vrtici
 getVrtici(): Observable<Vrtic[]> {
   return this.http.get<Vrtic[]>(`${this.API_URL}/vrtic`, {
@@ -153,6 +163,18 @@ getVrtici(): Observable<Vrtic[]> {
 
 dodajVrtic(vrtic: Vrtic): Observable<Vrtic> {
   return this.http.post<Vrtic>(`${this.API_URL}/vrtic`, vrtic, {
+    headers: this.getHeaders(),
+  });
+}
+
+obrisiVrtic(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.API_URL}/vrtic/${id}`, {
+        headers: this.getHeaders()
+    });
+}
+
+azurirajVrtic(id: string, vrtic: Vrtic): Observable<Vrtic> {
+  return this.http.put<Vrtic>(`${this.API_URL}/vrtic/${id}`, vrtic, {
     headers: this.getHeaders(),
   });
 }

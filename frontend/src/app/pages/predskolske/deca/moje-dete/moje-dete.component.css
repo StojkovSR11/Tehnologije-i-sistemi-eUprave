@@ -1,0 +1,55 @@
+.moje-dete-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.status-message {
+  text-align: center;
+  margin-bottom: 15px;
+  color: #e74c3c;
+  font-weight: 500;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+thead th {
+  background-color: #28a745;
+  color: white;
+  padding: 10px;
+  text-align: left;
+}
+
+tbody td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary { background-color: #007bff; color: white; }
+.btn-success { background-color: #28a745; color: white; }
+.btn-danger { background-color: #dc3545; color: white; }
+
+button:hover {
+  opacity: 0.9;
+}

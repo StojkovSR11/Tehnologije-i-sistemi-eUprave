@@ -7,6 +7,8 @@ export interface User {
   jmbg: string;
   name: string;
   role: string;
+
+  id?: string;
 }
 
 export interface LoginRequest {
@@ -138,4 +140,8 @@ export class AuthService {
       return null;
     }
   }
+  getCurrentUserId(): string {
+  const user = this.getCurrentUser(); // pretpostavljam da ova vraća objekat sa ID-em
+  return user?.id || '';
+}
 }

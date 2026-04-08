@@ -1,33 +1,36 @@
 <div class="deca-container">
   <h2>Lista dece</h2>
-  <ul>
-    <li *ngFor="let dete of deca">
-      {{ dete.ime }} {{ dete.prezime }} - JMBG: {{ dete.jmbg }} - Korisnik ID: {{ dete.korisnikId }}
-    </li>
-  </ul>
 
-  <h3>Dodaj novo dete</h3>
-  <form (ngSubmit)="dodajDete()">
-    <div>
-      <label>Ime:</label>
-      <input type="text" [(ngModel)]="novoDete.ime" name="ime" required>
-    </div>
-    <div>
-      <label>Prezime:</label>
-      <input type="text" [(ngModel)]="novoDete.prezime" name="prezime" required>
-    </div>
-    <div>
-      <label>JMBG:</label>
-      <input type="text" [(ngModel)]="novoDete.jmbg" name="jmbg" required>
-    </div>
-    <div>
-      <label>Datum rođenja:</label>
-      <input type="date" [(ngModel)]="novoDete.datumRodj" name="datumRodj" required>
-    </div>
-    <div>
-      <label>Korisnik ID:</label>
-      <input type="text" [(ngModel)]="novoDete.korisnikId" name="korisnikId" required>
-    </div>
-    <button type="submit">Dodaj dete</button>
-  </form>
+  <table class="dete-table">
+    <thead>
+      <tr>
+        <th>Ime</th>
+        <th>Prezime</th>
+        <th>JMBG</th>
+        <th>Korisnik ID</th>
+        <th>Akcije</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let d of deca">
+        <td>{{ d.ime }}</td>
+        <td>{{ d.prezime }}</td>
+        <td>{{ d.jmbg }}</td>
+        <td>{{ d.korisnikId }}</td>
+        <td class="card-actions">
+          <button class="btn btn-primary" (click)="urediDete(d)">Uredi</button>
+          <button class="btn btn-danger" (click)="obrisiDete(d)">Obriši</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="card-actions">
+    <button class="btn btn-secondary" routerLink="/predskolske/admin">⬅️ Nazad na admin</button>
+    <button class="btn btn-success" routerLink="/predskolske/dodaj-dete">➕ Dodaj dete</button>
+  </div>
+
+  <div *ngIf="statusMessage" [ngClass]="statusClass" class="alert">
+    {{ statusMessage }}
+  </div>
 </div>

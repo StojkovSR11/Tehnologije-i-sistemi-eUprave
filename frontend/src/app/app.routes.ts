@@ -84,30 +84,91 @@ export const routes: Routes = [
     import("./pages/predskolske/predskolske-admin.component").then(
       (m) => m.PredskolskeAdminComponent
     ),
-  children: [
-    {
-      path: 'vrtici',
-      loadComponent: () =>
-        import('./pages/predskolske/vrtici/vrtici.component').then(
-          (m) => m.VrticiComponent
-        ),
-    },
-    {
-      path: 'vrtici/dodaj',
-      loadComponent: () =>
-        import('./pages/predskolske/vrtici/dodaj-vrtic/dodaj-vrtic.component').then(
-          (m) => m.DodajVrticComponent
-        ),
-    },
-    {
-      path: 'deca',
-      loadComponent: () =>
-        import('./pages/predskolske/deca/deca.component').then(
-          (m) => m.DecaComponent
-        ),
-    }
-  ]
 },
+
+{
+  path: 'predskolske/vrtici',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['ADMIN'] },
+  loadComponent: () =>
+    import('./pages/predskolske/vrtici/vrtici.component').then(
+      (m) => m.VrticiComponent
+    ),
+},
+{
+  path: 'predskolske/dodaj-vrtic',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['ADMIN'] },
+  loadComponent: () =>
+    import('./pages/predskolske/vrtici/dodaj-vrtic/dodaj-vrtic.component').then(
+      (m) => m.DodajVrticComponent
+    ),
+},
+
+
+{
+  path: 'predskolske/dodaj-vrtic/:id',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['ADMIN'] },
+  loadComponent: () =>
+    import('./pages/predskolske/vrtici/dodaj-vrtic/dodaj-vrtic.component')
+      .then(m => m.DodajVrticComponent)
+},
+
+//za decu
+// Admin rute za decu
+{
+  path: 'predskolske/deca',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['ADMIN'] },
+  loadComponent: () =>
+    import('./pages/predskolske/deca/deca.component').then(
+      m => m.DecaComponent
+    ),
+},
+
+// Korisnik rute za decu
+{
+  path: 'predskolske/moje-dete',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['citizen'] },
+  loadComponent: () =>
+    import('./pages/predskolske/deca/moje-dete/moje-dete.component').then(
+      m => m.MojeDeteComponent
+    ),
+},
+
+{
+  path: 'predskolske/dodaj-dete',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['citizen'] },
+  loadComponent: () =>
+    import('./pages/predskolske/deca/dodaj-dete/dodaj-dete.component').then(
+      m => m.DodajDeteComponent
+    ),
+},
+
+{
+  path: 'predskolske/dodaj-dete/:id',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['citizen'] },
+  loadComponent: () =>
+    import('./pages/predskolske/deca/dodaj-dete/dodaj-dete.component').then(
+      m => m.DodajDeteComponent
+    ),
+},
+
+/*{
+  path: 'predskolske/detalji-dete/:id',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['ADMIN','citizen'] },  // oba mogu da vide detalje
+  loadComponent: () =>
+    import('./pages/predskolske/deca/detalji-dete/detalji-dete.component').then(
+      m => m.DetaljiDeteComponent
+    ),
+},*/
+
+
 
   // Admin only routes
   {

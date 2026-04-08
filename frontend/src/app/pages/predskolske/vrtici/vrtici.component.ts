@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { PredskolskeService, Vrtic } from '../../../services/predskolske.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-vrtici',
@@ -14,34 +14,62 @@ import { RouterModule } from '@angular/router';
 export class VrticiComponent implements OnInit {
 
   vrtici: Vrtic[] = [];
-  noviVrtic: Vrtic = {
-    id: "",
-    naziv: '',
-    kapacitet: 0,
-    brojSlobodnihMesta: 0
-  };
+  statusMessage: string = '';
+  statusClass: string = '';
 
-  constructor(private predskolskeService: PredskolskeService) {}
+  constructor(
+    private predskolskeService: PredskolskeService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.ucitajVrtice();
   }
 
   ucitajVrtice(): void {
-    this.predskolskeService.getVrtici().subscribe({
-      next: (data) => this.vrtici = data,
-      error: (err) => console.error('Greska pri ucitavanju vrtica', err)
-    });
+  this.predskolskeService.getVrtici().subscribe({
+    next: (data) => {
+      // dodaj privremeno brojUpisanihDece = 0
+      this.vrtici = data.map(v => ({ ...v, brojUpisanihDece: 0 }));
+    },
+    error: (err) => this.prikaziStatus('Greska pri ucitavanju vrtica', 'alert-error')
+  });
+}
+
+  // Privremeno: brojUpisanihDece još ne postoji, koristimo brojSlobodnihMesta
+  getBrojSlobodnihMesta(vrtic: Vrtic): number {
+    return vrtic.brojSlobodnihMesta; // privremeno, kasnije: vrtic.kapacitet - vrtic.brojUpisanihDece
   }
 
-  dodajVrtic(): void {
-    this.predskolskeService.dodajVrtic(this.noviVrtic).subscribe({
-      next: (vrt) => {
-        this.vrtici.push(vrt);
-        this.noviVrtic = { id:'' ,naziv: '', kapacitet: 0, brojSlobodnihMesta: 0 };
-      },
-      error: (err) => console.error('Greska pri dodavanju vrtica', err)
-    });
+  urediVrtic(vrtic: Vrtic) {
+    // Navigacija na stranicu za dodavanje/uređivanje sa ID-jem
+    this.router.navigate(['/predskolske/dodaj-vrtic', vrtic.id]);
   }
 
+  obrisiVrtic(vrtic: Vrtic) {
+    // Privremeno: ne proveravamo broj dece, kasnije dodati stvarnu proveru
+    if (confirm(`Da li ste sigurni da želite da obrišete vrtić "${vrtic.naziv}"?`)) {
+      this.predskolskeService.obrisiVrtic(vrtic.id).subscribe({
+        next: () => {
+          this.vrtici = this.vrtici.filter(v => v.id !== vrtic.id);
+          this.prikaziStatus('✅ Vrtić obrisan.', 'alert-success');
+        },
+        error: (err: any) => this.prikaziStatus('❌ Greska pri brisanju vrtica', 'alert-error')
+      });
+    }
+  }
+
+  nazad() {
+    this.router.navigate(['/predskolske/admin']);
+  }
+
+  prikaziStatus(message: string, type: string) {
+    this.statusMessage = message;
+    this.statusClass = type;
+
+    setTimeout(() => {
+      this.statusMessage = '';
+      this.statusClass = '';
+    }, 3000);
+  }
 }

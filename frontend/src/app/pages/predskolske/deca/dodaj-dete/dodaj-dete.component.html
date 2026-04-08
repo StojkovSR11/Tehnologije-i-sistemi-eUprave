@@ -1,0 +1,52 @@
+<div class="predskolske-admin-container">
+  <div class="admin-header">
+    <h1>➕ Dodaj novo dete</h1>
+    <p>Unesite podatke o detetu</p>
+  </div>
+
+  <div class="admin-card">
+    <h3>🧒 Podaci o detetu</h3>
+
+    <form (ngSubmit)="sacuvajDete()" class="dete-form">
+
+      <label>
+        Ime:
+        <input type="text" [(ngModel)]="novoDete.ime" name="ime" required>
+      </label>
+
+      <label>
+        Prezime:
+        <input type="text" [(ngModel)]="novoDete.prezime" name="prezime" required>
+      </label>
+
+      <label>
+        JMBG:
+        <input type="text" [(ngModel)]="novoDete.jmbg" name="jmbg" required>
+      </label>
+
+      <label>
+        Datum rođenja:
+        <input type="date" [(ngModel)]="novoDete.datumRodj" name="datumRodj" required>
+      </label>
+
+      <label>
+        Korisnik ID:
+        <input type="text" [(ngModel)]="novoDete.korisnikId" name="korisnikId" required>
+      </label>
+
+      <label>
+        Grupa ID:
+        <input type="text" [(ngModel)]="novoDete.grupaID" name="grupaID">
+      </label>
+
+      <div class="card-actions">
+        <button type="submit" class="btn btn-success">➕ Dodaj dete</button>
+        <button type="button" class="btn btn-secondary" (click)="odustani()">❌ Odustani</button>
+      </div>
+    </form>
+
+    <div *ngIf="status" [ngClass]="status.type" class="alert">
+      {{ status.message }}
+    </div>
+  </div>
+</div>

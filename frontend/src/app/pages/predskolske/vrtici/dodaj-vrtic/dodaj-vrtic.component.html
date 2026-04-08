@@ -1,15 +1,56 @@
-<div class="dodaj-vrtic-container">
-  <h2>Dodaj novi vrtić</h2>
-  <form (ngSubmit)="dodajVrtic()">
-    <label>Naziv:
-      <input type="text" [(ngModel)]="noviVrtic.naziv" name="naziv" required>
-    </label>
-    <label>Kapacitet:
-      <input type="number" [(ngModel)]="noviVrtic.kapacitet" name="kapacitet" required>
-    </label>
-    <label>Broj slobodnih mesta:
-      <input type="number" [(ngModel)]="noviVrtic.brojSlobodnihMesta" name="brojSlobodnihMesta" required>
-    </label>
-    <button type="submit">Dodaj vrtić</button>
-  </form>
+<div class="predskolske-admin-container">
+  <div class="admin-header">
+    <h1>
+      {{ vrticId ? '✏️ Uredi vrtić' : '➕ Dodaj novi vrtić' }}
+    </h1>
+    <p>
+      {{ vrticId ? 'Izmijenite podatke vrtića' : 'Unesite podatke o vrtiću' }}
+    </p>
+  </div>
+
+  <div class="admin-card">
+    <h3>🏫 Podaci o vrtiću</h3>
+
+    <form (ngSubmit)="sacuvajVrtic()" class="vrtic-form">
+      
+      <label>
+        Naziv:
+        <input type="text"
+               [(ngModel)]="noviVrtic.naziv"
+               name="naziv"
+               required>
+      </label>
+
+      <label>
+        Kapacitet:
+        <input type="number"
+               [(ngModel)]="noviVrtic.kapacitet"
+               name="kapacitet"
+               required>
+      </label>
+
+      <label>
+        Broj slobodnih mesta:
+        <input type="number"
+               [(ngModel)]="noviVrtic.brojSlobodnihMesta"
+               name="brojSlobodnihMesta"
+               required>
+      </label>
+
+      <div class="card-actions">
+        <button type="submit" class="btn btn-success">
+          {{ vrticId ? '💾 Sačuvaj izmjene' : '➕ Dodaj vrtić' }}
+        </button>
+
+        <button type="button" class="btn btn-secondary" (click)="odustani()">
+          ❌ Odustani
+        </button>
+      </div>
+
+    </form>
+
+    <div *ngIf="status" [ngClass]="status.type" class="alert">
+      {{ status.message }}
+    </div>
+  </div>
 </div>

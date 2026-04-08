@@ -1,0 +1,30 @@
+<div class="moje-dete-container">
+  <h2>👶 Moja deca</h2>
+
+  <div *ngIf="statusMessage" class="status-message">
+    {{ statusMessage }}
+  </div>
+
+  <table *ngIf="deca.length > 0">
+    <thead>
+      <tr>
+        <th>Ime</th>
+        <th>Prezime</th>
+        <th>Datum rođenja</th>
+        <th>Akcije</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let dete of deca">
+        <td>{{ dete.ime }}</td>
+        <td>{{ dete.prezime }}</td>
+        <td>{{ dete.datumRodj | date:'dd.MM.yyyy' }}</td>
+        <td>
+          <button class="btn btn-primary" (click)="pregled(dete.id)">Pregled</button>
+          <button class="btn btn-success" (click)="izmeni(dete.id)">Izmeni</button>
+          <button class="btn btn-danger" (click)="obrisi(dete.id)">Obriši</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

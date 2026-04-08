@@ -37,22 +37,20 @@ import { Router } from '@angular/router';
           </div>
         </div>
 
-        <!-- Upravljanje decom -->
-        <div class="admin-card">
-          <h3>👶 Upravljanje decom</h3>
-          <p>Pregled i upravljanje podacima o deci u sistemu</p>
-          <div class="card-actions">
-            <button class="btn btn-primary" (click)="loadDeca()">
-              Prikaži decu
-            </button>
-            <button class="btn btn-success" (click)="addDete()">
-              Dodaj dete
-            </button>
-          </div>
-          <div *ngIf="decaStatus" [ngClass]="decaStatus.type" class="alert">
-            {{ decaStatus.message }}
-          </div>
-        </div>
+       <!-- Upravljanje decom -->
+<div class="admin-card">
+  <h3>👶 Upravljanje decom</h3>
+  <p>Pregled i upravljanje podacima o deci u sistemu</p>
+  <div class="card-actions">
+    <button class="btn btn-primary" (click)="prikaziDecu()">
+  Prikaži decu
+    </button>
+    <!-- Dugme Dodaj dete uklonjeno -->
+  </div>
+  <div *ngIf="decaStatus" [ngClass]="decaStatus.type" class="alert">
+    {{ decaStatus.message }}
+  </div>
+</div>
 
         <!-- Upravljanje zahtevima -->
         <div class="admin-card">
@@ -90,7 +88,7 @@ import { Router } from '@angular/router';
       </div>
 
       
-<router-outlet></router-outlet>
+
 
       <!-- Brzi pristup -->
       <div class="quick-access">
@@ -101,6 +99,8 @@ import { Router } from '@angular/router';
           <a routerLink="/" class="btn btn-secondary">🏠 Početna</a>
         </div>
       </div>
+
+      
     </div>
   `,
   styles: [`
@@ -225,26 +225,17 @@ export class PredskolskeAdminComponent implements OnInit {
 
   // Dugmad za vrtiće
 loadVrtici() {
-  // ovo ide direktno na child rutu 'vrtici' unutar admina
-  this.router.navigate(['/predskolske/admin/vrtici']);
+  this.router.navigate(['/predskolske/vrtici']);
 }
 
 addVrtic() {
-  this.router.navigate(['/predskolske/admin/vrtici/dodaj']);
+  this.router.navigate(['/predskolske/dodaj-vrtic']);
 }
-  loadDeca() {
-    this.decaStatus = {
-      type: 'alert-info',
-      message: 'Učitavanje dece...'
-    };
-    
-    setTimeout(() => {
-      this.decaStatus = {
-        type: 'alert-success',
-        message: '✅ Učitano 347 dece (289 upisano, 58 na čekanju)'
-      };
-    }, 1200);
-  }
+
+
+  prikaziDecu() {
+  this.router.navigate(['/predskolske/deca']);
+}
 
   addDete() {
     this.decaStatus = {
