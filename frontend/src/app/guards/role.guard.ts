@@ -29,7 +29,7 @@ export class RoleGuard implements CanActivate {
     return true;
   }*/
 
-    canActivate(route: ActivatedRouteSnapshot): boolean {
+  /*  canActivate(route: ActivatedRouteSnapshot): boolean {
   const currentUser = this.authService.getCurrentUser();
 
   // 👉 DODAJ OVO
@@ -54,7 +54,18 @@ export class RoleGuard implements CanActivate {
   }
 
   return true;
-}
+}*/
 
+canActivate(route: ActivatedRouteSnapshot): boolean {
+  const requiredRoles = (route.data['roles'] as string[]).map(r => r.toUpperCase());
+  const currentUser = this.authService.getCurrentUser();
+
+  if (!currentUser || !requiredRoles.includes(currentUser.role)) {
+    this.router.navigate(['/unauthorized']);
+    return false;
+  }
+
+  return true;
+}
   
 }

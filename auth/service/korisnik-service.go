@@ -53,6 +53,7 @@ func (s *KorisnikService) Login(jmbg, password string) (string, error) {
 
 	// Generisanje JWT tokena sa svim korisničkim podacima
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	    "id":       korisnik.ID.Hex(),
 		"jmbg":     korisnik.JMBG,
 		"email":    korisnik.Email,
 		"ime":      korisnik.Ime,

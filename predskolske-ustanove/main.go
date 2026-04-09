@@ -13,6 +13,8 @@ import (
 	"predskolske-ustanove/handler"
 	"predskolske-ustanove/repository"
 	"predskolske-ustanove/service"
+
+	"predskolske-ustanove/middleware"
 )
 
 // CORS middleware
@@ -112,6 +114,14 @@ func main() {
 
         api.POST("/grupa/dodaj-dete", grupaHandler.DodajDeteUGrupu)
 	}
+
+    auth := api.Group("/")
+	    auth.Use(middleware.JWTAuthMiddleware())
+	    {
+		    auth.GET("/moja-deca", deteHandler.MojaDeca)
+		    auth.POST("/moje-dete", deteHandler.KreirajMojeDete)
+	    }
+
 
 	log.Println("Predskolske ustanove service starting on port 8081")
 	if err := r.Run(":8081"); err != nil {

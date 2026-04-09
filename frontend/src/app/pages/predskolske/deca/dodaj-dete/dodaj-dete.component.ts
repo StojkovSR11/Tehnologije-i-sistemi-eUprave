@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PredskolskeService, Dete } from '../../../../services/predskolske.service';
+import { AuthService } from '../../../../services/auth.service';  // <--- dodato
 
 @Component({
   selector: 'app-dodaj-dete',
@@ -13,18 +14,29 @@ import { PredskolskeService, Dete } from '../../../../services/predskolske.servi
 })
 export class DodajDeteComponent {
   novoDete: Dete = {
-    id: '',
     jmbg: '',
     ime: '',
     prezime: '',
     datumRodj: '',
-    korisnikId: '',
+    korisnikId: '',  // automatski iz AuthService
     grupaID: ''
   };
 
   status: { type: string, message: string } | null = null;
 
-  constructor(private predskolskeService: PredskolskeService, private router: Router) {}
+  grupe: { id: string, naziv: string }[] = [
+    { id: '1', naziv: 'Grupa A' },
+    { id: '2', naziv: 'Grupa B' },
+    { id: '3', naziv: 'Grupa C' }
+  ];
+
+  constructor(
+    private predskolskeService: PredskolskeService,
+    private authService: AuthService,
+    private router: Router
+  ) {
+    this.novoDete.korisnikId = this.authService.getCurrentUserId();
+  }
 
   sacuvajDete() {
     this.status = { type: 'alert-info', message: 'Dodavanje deteta...' };

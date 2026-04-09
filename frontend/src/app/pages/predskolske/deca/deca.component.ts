@@ -1,13 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { PredskolskeService, Dete } from '../../../services/predskolske.service';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 
 @Component({
   selector: 'app-deca',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './deca.component.html',
   styleUrls: ['./deca.component.css']
 })
@@ -33,21 +32,10 @@ export class DecaComponent implements OnInit {
     });
   }
 
-  urediDete(dete: Dete) {
-    this.router.navigate(['/predskolske/dodaj-dete', dete.id]);
-  }
-
-  obrisiDete(dete: Dete) {
-    if (confirm(`Da li ste sigurni da želite da obrišete dete "${dete.ime} ${dete.prezime}"?`)) {
-      this.predskolskeService.getDeca().subscribe({
-        next: () => {
-          this.predskolskeService.obrisiZahtev(dete.id || '').subscribe({}); // ili endpoint za brisanje deteta
-          this.deca = this.deca.filter(d => d.id !== dete.id);
-          this.prikaziStatus('✅ Dete obrisano.', 'alert-success');
-        },
-        error: () => this.prikaziStatus('❌ Greska pri brisanju deteta', 'alert-error')
-      });
-    }
+  // Za admina: dugme Detalji vodi ka detaljima deteta
+  prikaziDetalje(dete: Dete) {
+    if (!dete.id) return;
+    this.router.navigate(['/predskolske/detalji-dete', dete.id]);
   }
 
   prikaziStatus(message: string, type: string) {

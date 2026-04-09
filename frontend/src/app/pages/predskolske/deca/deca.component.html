@@ -8,7 +8,7 @@
         <th>Prezime</th>
         <th>JMBG</th>
         <th>Korisnik ID</th>
-        <th>Akcije</th>
+        <th>Detalji</th>
       </tr>
     </thead>
     <tbody>
@@ -18,8 +18,7 @@
         <td>{{ d.jmbg }}</td>
         <td>{{ d.korisnikId }}</td>
         <td class="card-actions">
-          <button class="btn btn-primary" (click)="urediDete(d)">Uredi</button>
-          <button class="btn btn-danger" (click)="obrisiDete(d)">Obriši</button>
+          <button class="btn btn-primary" (click)="prikaziDetalje(d)">Detalji</button>
         </td>
       </tr>
     </tbody>
@@ -27,7 +26,6 @@
 
   <div class="card-actions">
     <button class="btn btn-secondary" routerLink="/predskolske/admin">⬅️ Nazad na admin</button>
-    <button class="btn btn-success" routerLink="/predskolske/dodaj-dete">➕ Dodaj dete</button>
   </div>
 
   <div *ngIf="statusMessage" [ngClass]="statusClass" class="alert">

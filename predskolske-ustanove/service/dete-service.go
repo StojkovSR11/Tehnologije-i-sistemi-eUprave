@@ -23,24 +23,24 @@ func NewDeteService(repo *repository.DeteRepository) *DeteService {
 }
 
 // Kreiranje novog deteta
-func (s *DeteService) CreateDete(dete *model.Dete) (*model.Dete, error) {
+func (s *DeteService) CreateDete(dete *model.Dete, korisnikID primitive.ObjectID) (*model.Dete, error) {
 	if dete.JMBG == "" || dete.Ime == "" || dete.Prezime == "" {
 		return nil, errors.New("sva polja su obavezna")
 	}
 
-	// validacija datuma
 	if dete.DatumRodj.After(time.Now()) {
 		return nil, errors.New("datum rodjenja ne moze biti u buducnosti")
 	}
+
+	// postavi korisnika iz tokena
+	dete.Korisnik = korisnikID
 
 	result, err := s.repo.Create(dete)
 	if err != nil {
 		return nil, err
 	}
 
-	// 🔥 KLJUCNO — postavi ID iz baze
-	dete.ID = result.InsertedID.(primitive.ObjectID)
-
+	dete.ID = result.ID
 	return dete, nil
 }
 
@@ -70,6 +70,13 @@ func (s *DeteService) UpdateDete(id string, dete *model.Dete) (*model.Dete, erro
 	}
 	return dete, nil
 }
+
+
+func (s *DeteService) GetDecuZaKorisnika(korisnikID primitive.ObjectID) ([]model.Dete, error) {
+	return s.repo.GetByKorisnikID(korisnikID)
+}
+
+
 
 // Brisanje deteta
 func (s *DeteService) DeleteDete(id string) error {

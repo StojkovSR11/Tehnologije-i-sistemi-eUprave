@@ -6,6 +6,8 @@ import (
 	"predskolske-ustanove/service"
 
 	"github.com/gin-gonic/gin"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type DeteHandler struct {
@@ -24,7 +26,8 @@ func (h *DeteHandler) KreirajDete(c *gin.Context) {
 		return
 	}
 
-	novoDete, err := h.service.CreateDete(&dete)
+	id := primitive.NewObjectID() // generiše novi ObjectID
+    novoDete, err := h.service.CreateDete(&dete, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "greska pri kreiranju deteta"})
 		return
@@ -70,6 +73,58 @@ func (h *DeteHandler) AzurirajDete(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, updatedDete)
 }
+
+
+// Vrati decu za trenutno ulogovanog korisnika
+func (h *DeteHandler) MojaDeca(c *gin.Context) {
+	// Pretpostavljamo da middleware za JWT stavlja korisnikID u context
+	korisnikIDVal, exists := c.Get("korisnikID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "korisnik nije ulogovan"})
+		return
+	}
+
+	korisnikID, ok := korisnikIDVal.(primitive.ObjectID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "neispravan korisnikID"})
+		return
+	}
+
+	deca, err := h.service.GetDecuZaKorisnika(korisnikID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "greska pri ucitavanju dece"})
+		return
+	}
+
+	c.JSON(http.StatusOK, deca)
+}
+
+// Kreiranje deteta za logovanog korisnika
+func (h *DeteHandler) KreirajMojeDete(c *gin.Context) {
+	var dete model.Dete
+	if err := c.ShouldBindJSON(&dete); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "neispravni podaci"})
+		return
+	}
+
+	korisnikIDVal, exists := c.Get("korisnikID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "korisnik nije ulogovan"})
+		return
+	}
+
+	korisnikID := korisnikIDVal.(primitive.ObjectID)
+
+	novoDete, err := h.service.CreateDete(&dete, korisnikID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusCreated, novoDete)
+}
+
+
 
 // Brisanje deteta
 func (h *DeteHandler) ObrisiDete(c *gin.Context) {

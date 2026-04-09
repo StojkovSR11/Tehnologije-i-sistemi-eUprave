@@ -13,7 +13,8 @@ import { AuthService, RegisterRequest } from '../../../services/auth.service';
 export class RegisterComponent {
   jmbg = '';
   email = '';
-  name = '';
+  ime = '';
+  prezime = '';
   password = '';
   message = '';
 
@@ -24,7 +25,8 @@ export class RegisterComponent {
     const registerData: RegisterRequest = {
       jmbg: this.jmbg,
       email: this.email,
-      name: this.name,
+      ime: this.ime,
+      prezime: this.prezime,
       password: this.password
     };
 

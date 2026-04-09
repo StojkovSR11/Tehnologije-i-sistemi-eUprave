@@ -7,7 +7,6 @@ export interface User {
   jmbg: string;
   name: string;
   role: string;
-
   id?: string;
 }
 
@@ -24,7 +23,8 @@ export interface LoginResponse {
 export interface RegisterRequest {
   jmbg: string;
   email: string;
-  name: string;
+  ime: string;
+  prezime: string;
   password: string;
 }
 
@@ -39,14 +39,12 @@ export class AuthService {
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor() {
-    // Check if user is already logged in
     const token = localStorage.getItem("authToken");
     if (token) {
       const user = this.getUserFromToken(token);
       if (user) {
         this.currentUserSubject.next(user);
       } else {
-        // Clear invalid token
         localStorage.removeItem("authToken");
         localStorage.removeItem("currentUser");
       }
@@ -68,7 +66,6 @@ export class AuthService {
       );
   }
 
-  // NOVO: REGISTER METOD
   register(data: RegisterRequest): Observable<any> {
     return this.http.post(`${this.API_URL}/register`, data);
   }
@@ -106,42 +103,49 @@ export class AuthService {
   }
 
   testService(): Observable<any> {
-    return this.http.get(`http://localhost:8082/health`);
+    return this.http.get(`${this.API_URL}/health`);
   }
 
-  // Decode JWT token and extract user data
+  getCurrentUserId(): string {
+    const user = this.getCurrentUser();
+    return user?.id || '';
+  }
+
   private getUserFromToken(token: string): User | null {
     try {
-      // JWT token has 3 parts separated by dots
-      const parts = token.split('.');
-      if (parts.length !== 3) {
-        return null;
-      }
+      const parts = token.split(".");
+      if (parts.length !== 3) return null;
 
-      // Decode the payload (second part)
       const payload = parts[1];
       const decodedPayload = atob(payload);
       const tokenData = JSON.parse(decodedPayload);
 
-      // Check if token is expired
+      // Proveravamo da li je token istekao
       if (tokenData.exp && tokenData.exp * 1000 < Date.now()) {
         return null;
       }
 
-      // Extract user data from token
-      return {
+      // Standardizacija role
+      let role = (tokenData.role || tokenData.uloga || '').toUpperCase();
+
+      // Ime korisnika
+      const name =
+        (tokenData.name && tokenData.name.trim()) ||
+        `${tokenData.ime || 'Nepoznato'} ${tokenData.prezime || ''}`.trim();
+
+      const user: User = {
         jmbg: tokenData.jmbg,
-        name: tokenData.name || `${tokenData.ime} ${tokenData.prezime}`,
-        //role: tokenData.role || tokenData.uloga
-        role: (tokenData.role || tokenData.uloga)?.toUpperCase()
+        name,
+        role,
+        id: tokenData.id || tokenData._id || undefined
       };
+
+      console.log('Decoded user from token:', user);
+      return user;
+
     } catch (error) {
-      console.error('Error decoding JWT token:', error);
+      console.error("Error decoding JWT token:", error);
       return null;
     }
   }
-  getCurrentUserId(): string {
-  const user = this.getCurrentUser(); // pretpostavljam da ova vraća objekat sa ID-em
-  return user?.id || '';
-}
 }

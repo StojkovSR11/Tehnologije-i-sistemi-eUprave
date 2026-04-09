@@ -30,13 +30,11 @@
       </label>
 
       <label>
-        Korisnik ID:
-        <input type="text" [(ngModel)]="novoDete.korisnikId" name="korisnikId" required>
-      </label>
-
-      <label>
-        Grupa ID:
-        <input type="text" [(ngModel)]="novoDete.grupaID" name="grupaID">
+        Grupa:
+        <select [(ngModel)]="novoDete.grupaID" name="grupaID">
+          <option value="">-- Odaberite grupu --</option>
+          <option *ngFor="let grupa of grupe" [value]="grupa.id">{{ grupa.naziv }}</option>
+        </select>
       </label>
 
       <div class="card-actions">

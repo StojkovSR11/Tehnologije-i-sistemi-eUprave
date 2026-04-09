@@ -20,10 +20,10 @@
         <td>{{ dete.prezime }}</td>
         <td>{{ dete.datumRodj | date:'dd.MM.yyyy' }}</td>
         <td>
-          <button class="btn btn-primary" (click)="pregled(dete.id)">Pregled</button>
-          <button class="btn btn-success" (click)="izmeni(dete.id)">Izmeni</button>
-          <button class="btn btn-danger" (click)="obrisi(dete.id)">Obriši</button>
-        </td>
+  <button class="btn btn-primary" (click)="dete.id && pregled(dete.id)">Pregled</button>
+  <button class="btn btn-success" (click)="dete.id && izmeni(dete.id)">Izmeni</button>
+  <button class="btn btn-danger" (click)="dete.id && obrisi(dete.id)">Obriši</button>
+</td>
       </tr>
     </tbody>
   </table>

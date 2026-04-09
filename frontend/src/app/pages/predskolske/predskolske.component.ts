@@ -21,6 +21,21 @@ import { AuthService } from "../../services/auth.service";
         <p>Upis dece u vrtiće i upravljanje zahtevima</p>
       </div>
 
+      <div class="navigation-buttons mb-30">
+  <button class="btn btn-primary" routerLink="/predskolske/dodaj-dete">
+    Dodaj dete
+  </button>
+  <button class="btn btn-secondary" routerLink="/predskolske/moje-dete">
+    Moja deca
+  </button>
+  <button class="btn btn-info" routerLink="/predskolske/vrtici">
+    Prikazi vrtiće
+  </button>
+  <button class="btn btn-warning" routerLink="/predskolske/grupe">
+    Grupe
+  </button>
+</div>
+
       <div class="services-grid">
         <!-- Upis deteta -->
         <div class="card">
@@ -167,6 +182,44 @@ import { AuthService } from "../../services/auth.service";
         </div>
       </div>
 
+
+<div class="card">
+  <h3>👶 Moja deca</h3>
+
+  <div *ngIf="deca.length > 0">
+    <div *ngFor="let d of deca" class="vrtic-item">
+      <p><strong>Ime:</strong> {{ d.ime }} {{ d.prezime }}</p>
+      <p><strong>JMBG:</strong> {{ d.jmbg }}</p>
+      <button class="btn btn-danger btn-sm" (click)="obrisiDete(d.id!)">
+  Obriši
+</button>
+    </div>
+  </div>
+
+  <div *ngIf="deca.length === 0">
+    <p>Nema dodate dece.</p>
+  </div>
+</div>
+
+
+
+
+<div class="card">
+  <h3>📋 Moji zahtevi</h3>
+
+  <div *ngIf="zahtevi.length > 0">
+    <div *ngFor="let z of zahtevi" class="vrtic-item">
+      <p><strong>Vrtić ID:</strong> {{ z.vrticId }}</p>
+      <p><strong>Status:</strong> {{ z.status || 'Na čekanju' }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="zahtevi.length === 0">
+    <p>Nema poslatih zahteva.</p>
+  </div>
+</div>
+
+
       <div class="card mt-20" *ngIf="!authService.isLoggedIn()">
         <div class="alert alert-info">
           ℹ️ Za pristup svim funkcionalnostima, molimo
@@ -192,6 +245,13 @@ import { AuthService } from "../../services/auth.service";
         font-size: 2.5rem;
         margin-bottom: 8px;
       }
+
+      .navigation-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
 
       .page-header p {
         color: #666;
@@ -301,12 +361,17 @@ export class PredskolskeComponent implements OnInit {
   vrtici: Vrtic[] = [];
   isLoading = false;
 
+  deca: Dete[] = [];
+  zahtevi: ZahtevZaUpis[] = [];
+
   zahtevStatus: { type: string; message: string } | null = null;
   vrticiStatus: { type: string; message: string } | null = null;
   testStatus: { type: string; message: string } | null = null;
 
   ngOnInit() {
     this.loadVrtici();
+    this.loadMojaDeca();
+    this.loadMojiZahtevi();
   }
 
   /*podnesZahtev() {
@@ -336,6 +401,8 @@ export class PredskolskeComponent implements OnInit {
   podnesZahtev() {
   this.isLoading = true;
   this.zahtevStatus = null;
+
+  this.noviZahtev.dete.korisnikId = this.authService.getCurrentUserId();
 
   // 1. prvo kreiramo dete
   this.predskolskeService.dodajDete(this.noviZahtev.dete).subscribe({
@@ -460,6 +527,44 @@ export class PredskolskeComponent implements OnInit {
       },
     });
   }
+
+//deca
+
+loadMojaDeca() {
+  const currentUserId = this.authService.getCurrentUserId();
+  this.predskolskeService.getDeca().subscribe({
+    next: (data) => {
+      this.deca = data.filter(d => d.korisnikId === currentUserId);
+    },
+    error: (err) => {
+      console.error("Greška pri učitavanju dece", err);
+    },
+  });
+}
+
+obrisiDete(deteId: string) {
+  this.predskolskeService.obrisiDete(deteId).subscribe({
+    next: () => {
+      this.deca = this.deca.filter(d => d.id !== deteId);
+    },
+    error: (err) => console.error("Greška pri brisanju deteta", err),
+  });
+}
+
+//zahtevi
+
+loadMojiZahtevi() {
+  this.predskolskeService.getZahtevi().subscribe({
+    next: (data) => {
+      this.zahtevi = data;
+    },
+    error: (err) => {
+      console.error("Greška pri učitavanju zahteva", err);
+    },
+  });
+}
+
+
 
   private resetZahtevForm() {
     this.noviZahtev = {

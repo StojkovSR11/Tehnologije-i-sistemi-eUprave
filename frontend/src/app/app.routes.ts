@@ -29,7 +29,7 @@ export const routes: Routes = [
   {
     path: "zdravstvo",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['citizen', 'doctor', 'ADMIN'] },
+    data: { roles: ['CITIZEN', 'DOCTOR', 'ADMIN'] },
     loadComponent: () =>
       import("./pages/zdravstvo/zdravstvo.component").then(
         (m) => m.ZdravstvoComponent
@@ -38,7 +38,7 @@ export const routes: Routes = [
   {
     path: "zdravstvo/admin",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['doctor', 'ADMIN'] },
+    data: { roles: ['DOCTOR', 'ADMIN'] },
     loadComponent: () =>
       import("./pages/zdravstvo/zdravstvo-admin.component").then(
         (m) => m.ZdravstvoAdminComponent
@@ -47,7 +47,7 @@ export const routes: Routes = [
   {
     path: "predskolske",
     canActivate: [AuthGuard, RoleGuard],
-    data: { roles: ['citizen', 'ADMIN'] },
+    data: { roles: ['CITIZEN', 'ADMIN'] },
     loadComponent: () =>
       import("./pages/predskolske/predskolske.component").then(
         (m) => m.PredskolskeComponent
@@ -58,7 +58,7 @@ export const routes: Routes = [
 {
   path: "predskolske/grupe",
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['citizen', 'ADMIN'] },
+  data: { roles: ['CITIZEN', 'ADMIN'] },
   loadComponent: () =>
     import('./pages/predskolske/grupa/grupa.component').then(
       (m) => m.GrupeComponent
@@ -131,7 +131,7 @@ export const routes: Routes = [
 {
   path: 'predskolske/moje-dete',
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['citizen'] },
+  data: { roles: ['CITIZEN'] },
   loadComponent: () =>
     import('./pages/predskolske/deca/moje-dete/moje-dete.component').then(
       m => m.MojeDeteComponent
@@ -141,7 +141,7 @@ export const routes: Routes = [
 {
   path: 'predskolske/dodaj-dete',
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['citizen'] },
+  data: { roles: ['CITIZEN'] },
   loadComponent: () =>
     import('./pages/predskolske/deca/dodaj-dete/dodaj-dete.component').then(
       m => m.DodajDeteComponent
@@ -151,7 +151,7 @@ export const routes: Routes = [
 {
   path: 'predskolske/dodaj-dete/:id',
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['citizen'] },
+  data: { roles: ['CITIZEN'] },
   loadComponent: () =>
     import('./pages/predskolske/deca/dodaj-dete/dodaj-dete.component').then(
       m => m.DodajDeteComponent

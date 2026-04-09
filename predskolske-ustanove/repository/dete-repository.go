@@ -22,8 +22,15 @@ func NewDeteRepository(db *mongo.Database) *DeteRepository {
 	}
 }
 
-func (r *DeteRepository) Create(dete *model.Dete) (*mongo.InsertOneResult, error) {
-	return r.collection.InsertOne(r.ctx, dete)
+func (r *DeteRepository) Create(dete *model.Dete) (*model.Dete, error) {
+	dete.ID = primitive.NewObjectID()
+
+	_, err := r.collection.InsertOne(r.ctx, dete)
+	if err != nil {
+		return nil, err
+	}
+
+	return dete, nil
 }
 
 func (r *DeteRepository) GetAll() ([]model.Dete, error) {
@@ -67,6 +74,31 @@ func (r *DeteRepository) Update(id primitive.ObjectID, dete *model.Dete) (*mongo
 	}
 	return r.collection.UpdateByID(r.ctx, id, update)
 }
+
+
+func (r *DeteRepository) GetByKorisnikID(korisnikID primitive.ObjectID) ([]model.Dete, error) {
+	filter := bson.M{"korisnik_id": korisnikID}
+
+	cursor, err := r.collection.Find(r.ctx, filter)
+	if err != nil {
+		return []model.Dete{}, err
+	}
+	defer cursor.Close(r.ctx)
+
+	deca := []model.Dete{}
+
+	for cursor.Next(r.ctx) {
+		var d model.Dete
+		if err := cursor.Decode(&d); err != nil {
+			return []model.Dete{}, err
+		}
+		deca = append(deca, d)
+	}
+
+	return deca, nil
+}
+
+
 
 func (r *DeteRepository) Delete(id primitive.ObjectID) (*mongo.DeleteResult, error) {
 	return r.collection.DeleteOne(r.ctx, bson.M{"_id": id})

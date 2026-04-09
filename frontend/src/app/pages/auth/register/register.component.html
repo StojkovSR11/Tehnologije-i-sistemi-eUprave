@@ -39,17 +39,28 @@
       </div>
 
       <div class="form-group">
-        <label for="name">Ime i prezime</label>
-        <input 
-          type="text" 
-          id="name" 
-          [(ngModel)]="name" 
-          name="name" 
-          required 
-          class="form-control"
-          placeholder="Unesite vaše ime i prezime">
-      </div>
+  <label for="ime">Ime</label>
+  <input 
+    type="text" 
+    id="ime" 
+    [(ngModel)]="ime" 
+    name="ime" 
+    required 
+    class="form-control"
+    placeholder="Unesite vaše ime">
+</div>
 
+<div class="form-group">
+  <label for="prezime">Prezime</label>
+  <input 
+    type="text" 
+    id="prezime" 
+    [(ngModel)]="prezime" 
+    name="prezime" 
+    required 
+    class="form-control"
+    placeholder="Unesite vaše prezime">
+</div>
       <div class="form-group">
         <label for="password">Lozinka</label>
         <input 
