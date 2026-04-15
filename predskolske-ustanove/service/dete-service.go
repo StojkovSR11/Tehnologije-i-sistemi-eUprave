@@ -33,7 +33,7 @@ func (s *DeteService) CreateDete(dete *model.Dete, korisnikID primitive.ObjectID
 	}
 
 	// postavi korisnika iz tokena
-	dete.Korisnik = korisnikID
+	dete.KorisnikID = korisnikID
 
 	result, err := s.repo.Create(dete)
 	if err != nil {

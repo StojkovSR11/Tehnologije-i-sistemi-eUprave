@@ -31,26 +31,41 @@ export class DodajDeteComponent {
   ];
 
   constructor(
-    private predskolskeService: PredskolskeService,
-    private authService: AuthService,
-    private router: Router
-  ) {
-    this.novoDete.korisnikId = this.authService.getCurrentUserId();
-  }
+  private predskolskeService: PredskolskeService,
+  private authService: AuthService,
+  private router: Router
+) {
+  const userId = this.authService.getCurrentUserId();
+  console.log("USER ID:", userId);
+
+  this.novoDete.korisnikId = userId;
+}
 
   sacuvajDete() {
-    this.status = { type: 'alert-info', message: 'Dodavanje deteta...' };
+  this.status = { type: 'alert-info', message: 'Dodavanje deteta...' };
 
-    this.predskolskeService.dodajDete(this.novoDete).subscribe({
-      next: () => {
-        this.status = { type: 'alert-success', message: '✅ Dete je dodato!' };
-        setTimeout(() => this.router.navigate(['/predskolske/deca']), 1000);
-      },
-      error: () => {
-        this.status = { type: 'alert-error', message: '❌ Greška pri dodavanju deteta' };
-      }
-    });
-  }
+  const payload = {
+    jmbg: this.novoDete.jmbg,
+    ime: this.novoDete.ime,
+    prezime: this.novoDete.prezime,
+    datumRodj: new Date(this.novoDete.datumRodj).toISOString(),
+    korisnikId: this.novoDete.korisnikId,
+    grupaID: this.novoDete.grupaID
+  };
+
+  console.log("SALJEM:", payload);
+
+  this.predskolskeService.dodajDete(payload).subscribe({
+    next: () => {
+      this.status = { type: 'alert-success', message: '✅ Dete je dodato!' };
+      setTimeout(() => this.router.navigate(['/predskolske/deca']), 1000);
+    },
+    error: (err) => {
+      console.log("GRESKA:", err);
+      this.status = { type: 'alert-error', message: '❌ Greška pri dodavanju deteta' };
+    }
+  });
+}
 
   odustani() {
     this.router.navigate(['/predskolske/deca']);

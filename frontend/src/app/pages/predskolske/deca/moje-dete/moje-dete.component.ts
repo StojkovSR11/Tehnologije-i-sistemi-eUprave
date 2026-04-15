@@ -21,25 +21,35 @@ export class MojeDeteComponent implements OnInit {
   private router = inject(Router);
 
   ngOnInit() {
-    this.loadMojeDece();
-  }
+  const korisnikId = this.authService.getCurrentUserId();
+  console.log("Trenutni korisnik ID iz tokena:", korisnikId); // ovo dodaj
+  this.loadMojeDece();
+}
 
   loadMojeDece() {
-    const korisnikId = this.authService.getCurrentUserId(); // metoda koja vraća ID trenutno ulogovanog roditelja
-    this.predskolskeService.getDeca().subscribe({
-      next: (data: Dete[]) => {
-        // filtriramo samo decu ovog roditelja
-        this.deca = data.filter(d => d.korisnikId === korisnikId);
-        if (this.deca.length === 0) {
-          this.statusMessage = 'Nemate registrovanu decu.';
-        }
-      },
-      error: (err) => {
-        console.error(err);
-        this.statusMessage = 'Greška pri učitavanju podataka o deci.';
+  const korisnikId = this.authService.getCurrentUserId();
+  console.log("Trenutni korisnik ID:", korisnikId);
+
+  this.predskolskeService.getMojaDeca().subscribe({
+    next: (data: Dete[]) => {
+      console.log("Podaci o deci sa servera:", data);
+
+      this.deca = data.filter(d => String(d.korisnikId) === String(korisnikId));
+
+      console.log("Filtrirana deca:", this.deca);
+
+      if (this.deca.length === 0) {
+        this.statusMessage = 'Nemate registrovanu decu.';
+      } else {
+        this.statusMessage = null; // uklonimo poruku ako ima dece
       }
-    });
-  }
+    },
+    error: (err) => {
+      console.error(err);
+      this.statusMessage = 'Greška pri učitavanju podataka o deci.';
+    }
+  });
+}
 
   pregled(deteId: string) {
     this.router.navigate(['/predskolske/detalji-dete', deteId]);

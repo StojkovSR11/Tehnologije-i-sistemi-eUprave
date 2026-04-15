@@ -154,6 +154,14 @@ obrisiDete(id: string): Observable<void> {
 }
 
 
+// Vrati decu za trenutno ulogovanog korisnika
+getMojaDeca(): Observable<Dete[]> {
+  return this.http.get<Dete[]>(`${this.API_URL}/moja-deca`, {
+    headers: this.getHeaders(),
+  });
+}
+
+
 //vrtici
 getVrtici(): Observable<Vrtic[]> {
   return this.http.get<Vrtic[]>(`${this.API_URL}/vrtic`, {

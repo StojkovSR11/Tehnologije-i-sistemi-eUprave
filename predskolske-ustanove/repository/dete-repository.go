@@ -69,7 +69,7 @@ func (r *DeteRepository) Update(id primitive.ObjectID, dete *model.Dete) (*mongo
 			"ime":        dete.Ime,
 			"prezime":    dete.Prezime,
 			"datumRodj":  dete.DatumRodj,
-			"korisnik_id": dete.Korisnik,
+			"korisnik_id": dete.KorisnikID,
 		},
 	}
 	return r.collection.UpdateByID(r.ctx, id, update)
