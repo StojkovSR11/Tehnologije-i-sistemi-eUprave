@@ -26,7 +26,7 @@ func (h *ZahtevHandler) KreirajZahtev(c *gin.Context) {
 
 	noviZahtev, err := h.service.CreateZahtev(&zahtev)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "greska pri kreiranju zahteva"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, noviZahtev)

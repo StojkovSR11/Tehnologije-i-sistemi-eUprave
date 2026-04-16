@@ -66,9 +66,11 @@ func (r *DeteRepository) GetByID(id primitive.ObjectID) (*model.Dete, error) {
 func (r *DeteRepository) Update(id primitive.ObjectID, dete *model.Dete) (*mongo.UpdateResult, error) {
 	update := bson.M{
 		"$set": bson.M{
+			"jmbg":       dete.JMBG,
 			"ime":        dete.Ime,
 			"prezime":    dete.Prezime,
 			"datumRodj":  dete.DatumRodj,
+			"grupaID":    dete.GrupaID,
 			"korisnik_id": dete.KorisnikID,
 		},
 	}

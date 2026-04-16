@@ -46,6 +46,14 @@ func (s *ZahtevService) CreateZahtev(zahtev *model.ZahtevZaUpis) (*model.ZahtevZ
 		return nil, errors.New("vrtic ne postoji")
 	}
 
+	postojeciZahtev, err := s.repo.GetByDeteAndVrtic(zahtev.DeteID, zahtev.VrticID)
+	if err != nil {
+		return nil, err
+	}
+	if postojeciZahtev != nil {
+		return nil, errors.New("zahtev za ovo dete i vrtic vec postoji")
+	}
+
 	// Default vrijednosti
 	zahtev.Status = model.StatusNaCekanju
 	zahtev.DatumPodnosenja = time.Now()

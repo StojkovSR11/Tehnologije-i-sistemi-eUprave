@@ -56,6 +56,21 @@ func (r *ZahtevRepository) GetByID(id primitive.ObjectID) (*model.ZahtevZaUpis, 
 	return &z, nil
 }
 
+func (r *ZahtevRepository) GetByDeteAndVrtic(deteID, vrticID primitive.ObjectID) (*model.ZahtevZaUpis, error) {
+	var z model.ZahtevZaUpis
+	err := r.collection.FindOne(r.ctx, bson.M{
+		"dete_id":  deteID,
+		"vrtic_id": vrticID,
+	}).Decode(&z)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &z, nil
+}
+
 func (r *ZahtevRepository) Update(id primitive.ObjectID, zahtev *model.ZahtevZaUpis) (*mongo.UpdateResult, error) {
 	update := bson.M{
 		"$set": bson.M{
