@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -9,7 +10,15 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-var jwtSecret = []byte("mojTajniJWT123") // zameni sa tvojim pravim tajnim kljucem
+func jwtSecretBytes() []byte {
+	// U docker-compose-u imamo JWT_SECRET, a auth service trenutno koristi hardkodovan "tajna123".
+	// Ovo omogućava kompatibilnost i u lokalnom i u docker okruženju.
+	secret := os.Getenv("JWT_SECRET")
+	if secret == "" {
+		secret = "tajna123"
+	}
+	return []byte(secret)
+}
 
 // JWTAuthMiddleware proverava token
 func JWTAuthMiddleware() gin.HandlerFunc {
@@ -37,7 +46,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrTokenSignatureInvalid
 			}
-			return jwtSecret, nil
+			return jwtSecretBytes(), nil
 		})
 		if err != nil || !token.Valid {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Nevalidan token"})
@@ -47,15 +56,23 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 
 		// Izvuci korisnikID iz tokena
 		claims, ok := token.Claims.(jwt.MapClaims)
-		if !ok || claims["korisnikID"] == nil {
+		if !ok {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Nevalidni claim-i u tokenu"})
 			c.Abort()
 			return
 		}
 
-		korisnikIDHex, ok := claims["korisnikID"].(string)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "korisnikID nije string"})
+		// Token iz auth servisa sadrži claim "id" (ObjectID hex string), dok predskolske-ustanove
+		// prvobitno očekuje claim "korisnikID". Prihvatamo oba (fallback).
+		var korisnikIDHex string
+		if v, ok := claims["korisnikID"].(string); ok && v != "" {
+			korisnikIDHex = v
+		} else if v, ok := claims["id"].(string); ok && v != "" {
+			korisnikIDHex = v
+		}
+
+		if korisnikIDHex == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Nedostaje korisnikID/id u tokenu"})
 			c.Abort()
 			return
 		}
