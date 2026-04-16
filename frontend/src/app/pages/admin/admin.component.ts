@@ -290,6 +290,6 @@ export class AdminComponent implements OnInit {
   }
 
   logout() {
-    this.authService.logout();
+    this.authService.logout().subscribe();
   }
 }

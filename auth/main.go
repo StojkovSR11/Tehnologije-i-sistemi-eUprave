@@ -60,6 +60,10 @@ func main() {
 	router.GET("/korisnici", userHandler.Svi)
 	router.DELETE("/korisnici/:jmbg", userHandler.Obrisi)
 
+	router.POST("/sso/logout", func(c *gin.Context) {
+		c.Status(http.StatusNoContent)
+	})
+
 	// Health check
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})

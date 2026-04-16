@@ -1,7 +1,8 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { BehaviorSubject, Observable } from "rxjs";
-import { tap } from "rxjs/operators";
+import { Router } from "@angular/router";
+import { BehaviorSubject, Observable, of } from "rxjs";
+import { catchError, tap } from "rxjs/operators";
 
 export interface User {
   jmbg: string;
@@ -33,6 +34,7 @@ export interface RegisterRequest {
 })
 export class AuthService {
   private http = inject(HttpClient);
+  private router = inject(Router);
   private readonly API_URL = "http://localhost:8082";
 
   private currentUserSubject = new BehaviorSubject<User | null>(null);
@@ -82,10 +84,12 @@ export class AuthService {
         }
       )
       .pipe(
+        catchError(() => of(null)),
         tap(() => {
           localStorage.removeItem("authToken");
           localStorage.removeItem("currentUser");
           this.currentUserSubject.next(null);
+          void this.router.navigate(["/"]);
         })
       );
   }
