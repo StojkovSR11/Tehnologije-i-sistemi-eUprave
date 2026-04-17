@@ -1,7 +1,8 @@
 import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
-import { RouterModule } from "@angular/router";
+import { Router, RouterModule } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
+import { RoleService } from "../../services/role.service";
 
 @Component({
   selector: "app-header",
@@ -33,8 +34,8 @@ import { AuthService } from "../../services/auth.service";
               🏥 Zdravstvo
             </a>
             <a
-              routerLink="/predskolske"
-              routerLinkActive="active"
+              [routerLink]="predskolskeLink"
+              [class.active]="isPredskolskeSectionActive()"
               class="nav-link"
             >
               🎓 Predškolske ustanove
@@ -134,7 +135,19 @@ import { AuthService } from "../../services/auth.service";
 })
 export class HeaderComponent {
   authService = inject(AuthService);
+  roleService = inject(RoleService);
+  private router = inject(Router);
   authStatus: { type: string; message: string } | null = null;
+
+  get predskolskeLink(): string {
+    return this.roleService.canAccessPreschoolAdvanced()
+      ? "/predskolske/admin"
+      : "/predskolske";
+  }
+
+  isPredskolskeSectionActive(): boolean {
+    return this.router.url.startsWith("/predskolske");
+  }
 
   logout() {
     console.log("Logout");

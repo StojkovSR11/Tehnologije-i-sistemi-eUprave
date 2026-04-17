@@ -1,10 +1,8 @@
-import { Component, inject, OnInit } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { RouterModule } from "@angular/router";
 import { AuthService } from "../../services/auth.service";
-import { RoleService, UserRole } from "../../services/role.service";
-import { ZdravstvoService } from "../../services/zdravstvo.service";
-import { PredskolskeService } from "../../services/predskolske.service";
+import { RoleService } from "../../services/role.service";
 
 @Component({
   selector: "app-home",
@@ -37,12 +35,6 @@ import { PredskolskeService } from "../../services/predskolske.service";
         <p>Upravljanje korisnicima i sistemom</p>
         <div class="service-actions">
           <a routerLink="/admin" class="btn btn-danger">Admin Panel</a>
-          <button class="btn btn-secondary" (click)="testAllServices()">
-            Test svih servisa
-          </button>
-        </div>
-        <div *ngIf="systemStatus" [ngClass]="systemStatus.type" class="alert">
-          {{ systemStatus.message }}
         </div>
       </div>
 
@@ -53,20 +45,7 @@ import { PredskolskeService } from "../../services/predskolske.service";
         <p *ngIf="roleService.isDoctor()">Upravljanje pacijentima, medicinski izveštaji</p>
         <p *ngIf="roleService.isAdmin()">Potpuno upravljanje zdravstvenim sistemom</p>
         <div class="service-actions">
-          <a routerLink="/zdravstvo" class="btn">Otvori servis</a>
-          <a *ngIf="roleService.canAccessHealthAdvanced()" routerLink="/zdravstvo/admin" class="btn btn-success">
-            Napredne opcije
-          </a>
-          <button class="btn btn-secondary" (click)="testZdravstvo()">
-            Test servis
-          </button>
-        </div>
-        <div
-          *ngIf="zdravstvoStatus"
-          [ngClass]="zdravstvoStatus.type"
-          class="alert"
-        >
-          {{ zdravstvoStatus.message }}
+          <a [routerLink]="zdravstvoServisLink" class="btn">{{ zdravstvoServisLabel }}</a>
         </div>
       </div>
 
@@ -76,37 +55,7 @@ import { PredskolskeService } from "../../services/predskolske.service";
         <p *ngIf="roleService.isCitizen()">Upis u vrtić, zahtevi, potvrde</p>
         <p *ngIf="roleService.isAdmin()">Upravljanje vrtićima i zahtevima</p>
         <div class="service-actions">
-          <a routerLink="/predskolske" class="btn">Otvori servis</a>
-          <a *ngIf="roleService.canAccessPreschoolAdvanced()" routerLink="/predskolske/admin" class="btn btn-success">
-            Upravljanje
-          </a>
-          <button class="btn btn-secondary" (click)="testPredskolske()">
-            Test servis
-          </button>
-        </div>
-        <div
-          *ngIf="predskolskeStatus"
-          [ngClass]="predskolskeStatus.type"
-          class="alert"
-        >
-          {{ predskolskeStatus.message }}
-        </div>
-      </div>
-
-      <!-- Autentifikacija - test servisa -->
-      <div class="card service-card">
-        <h3>🔐 Autentifikacija</h3>
-        <p>Status autentifikacije i test servisa</p>
-        <div class="service-actions">
-          <button class="btn btn-secondary" (click)="testAuth()">
-            Test servis
-          </button>
-          <button class="btn btn-danger" (click)="logout()">
-            Odjavi se
-          </button>
-        </div>
-        <div *ngIf="authStatus" [ngClass]="authStatus.type" class="alert">
-          {{ authStatus.message }}
+          <a [routerLink]="predskolskeServisLink" class="btn">{{ predskolskeServisLabel }}</a>
         </div>
       </div>
     </div>
@@ -121,8 +70,8 @@ import { PredskolskeService } from "../../services/predskolske.service";
         </span>
       </p>
       <div class="service-actions" *ngIf="roleService.canAccessBasicServices()">
-        <a routerLink="/zdravstvo" class="btn btn-success">Zakažite pregled</a>
-        <a routerLink="/predskolske" class="btn btn-success">Upišite dete</a>
+        <a [routerLink]="zdravstvoBrziLink" class="btn btn-success">{{ zdravstvoBrziLabel }}</a>
+        <a [routerLink]="predskolskeBrziLink" class="btn btn-success">{{ predskolskeBrziLabel }}</a>
       </div>
     </div>
 
@@ -231,110 +180,55 @@ import { PredskolskeService } from "../../services/predskolske.service";
     `,
   ],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent {
   authService = inject(AuthService);
   roleService = inject(RoleService);
-  private zdravstvoService = inject(ZdravstvoService);
-  private predskolskeService = inject(PredskolskeService);
 
-  authStatus: { type: string; message: string } | null = null;
-  zdravstvoStatus: { type: string; message: string } | null = null;
-  predskolskeStatus: { type: string; message: string } | null = null;
-  systemStatus: { type: string; message: string } | null = null;
-
-  ngOnInit() {
-    // Auto-test services on load
-    this.testAllServices();
+  get predskolskeServisLink(): string {
+    return this.roleService.canAccessPreschoolAdvanced()
+      ? "/predskolske/admin"
+      : "/predskolske";
   }
 
-  testAuth() {
-    this.authService.testService().subscribe({
-      next: (response) => {
-        this.authStatus = {
-          type: "alert-success",
-          message: `✅ Auth servis: ${response.status}`,
-        };
-      },
-      error: (error) => {
-        this.authStatus = {
-          type: "alert-error",
-          message: `❌ Auth servis: ${error.message}`,
-        };
-      },
-    });
+  get predskolskeServisLabel(): string {
+    return this.roleService.canAccessPreschoolAdvanced()
+      ? "Administratorski panel"
+      : "Otvori servis";
   }
 
-  testZdravstvo() {
-    this.zdravstvoService.testService().subscribe({
-      next: (response) => {
-        this.zdravstvoStatus = {
-          type: "alert-success",
-          message: `✅ Zdravstvo servis: ${response.status}`,
-        };
-      },
-      error: (error) => {
-        this.zdravstvoStatus = {
-          type: "alert-error",
-          message: `❌ Zdravstvo servis: ${error.message}`,
-        };
-      },
-    });
+  get zdravstvoServisLink(): string {
+    return this.roleService.canAccessHealthAdvanced()
+      ? "/zdravstvo/admin"
+      : "/zdravstvo";
   }
 
-  testPredskolske() {
-    this.predskolskeService.testService().subscribe({
-      next: (response) => {
-        this.predskolskeStatus = {
-          type: "alert-success",
-          message: `✅ Predškolske servis: ${response.status}`,
-        };
-      },
-      error: (error) => {
-        this.predskolskeStatus = {
-          type: "alert-error",
-          message: `❌ Predškolske servis: ${error.message}`,
-        };
-      },
-    });
+  get zdravstvoServisLabel(): string {
+    return this.roleService.canAccessHealthAdvanced()
+      ? "Upravljanje zdravstvom"
+      : "Otvori servis";
   }
 
-  testAllServices() {
-    this.systemStatus = {
-      type: "alert-info",
-      message: "Testiranje svih servisa...",
-    };
-
-    this.testAuth();
-    this.testZdravstvo();
-    this.testPredskolske();
-
-    setTimeout(() => {
-      this.systemStatus = {
-        type: "alert-success",
-        message: "✅ Testiranje završeno",
-      };
-    }, 2000);
+  get predskolskeBrziLink(): string {
+    return this.roleService.canAccessPreschoolAdvanced()
+      ? "/predskolske/admin"
+      : "/predskolske";
   }
 
-  logout() {
-    console.log("Logout");
-    this.authService.logout().subscribe({
-      next: () => {
-        // Logout successful - user data is already cleared in the service
-        this.authStatus = {
-          type: "alert-success",
-          message: "✅ Uspešno ste se odjavili"
-        };
-      },
-      error: (error) => {
-        // Even if server request fails, clear local data
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("currentUser");
-        this.authStatus = {
-          type: "alert-warning",
-          message: "⚠️ Odjavljeni ste lokalno (server nedostupan)"
-        };
-      }
-    });
+  get predskolskeBrziLabel(): string {
+    return this.roleService.canAccessPreschoolAdvanced()
+      ? "Predškolske – upravljanje"
+      : "Upišite dete";
+  }
+
+  get zdravstvoBrziLink(): string {
+    return this.roleService.canAccessHealthAdvanced()
+      ? "/zdravstvo/admin"
+      : "/zdravstvo";
+  }
+
+  get zdravstvoBrziLabel(): string {
+    return this.roleService.canAccessHealthAdvanced()
+      ? "Zdravstvo – upravljanje"
+      : "Zakažite pregled";
   }
 }

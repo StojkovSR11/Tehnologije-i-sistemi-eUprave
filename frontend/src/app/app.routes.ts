@@ -158,16 +158,15 @@ export const routes: Routes = [
     ),
 },
 
-/*{
+{
   path: 'predskolske/detalji-dete/:id',
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['ADMIN','citizen'] },  // oba mogu da vide detalje
+  data: { roles: ['ADMIN', 'CITIZEN'] },
   loadComponent: () =>
     import('./pages/predskolske/deca/detalji-dete/detalji-dete.component').then(
       m => m.DetaljiDeteComponent
     ),
-},*/
-
+},
 
 
   // Admin only routes
