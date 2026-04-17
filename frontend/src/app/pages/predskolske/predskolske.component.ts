@@ -36,63 +36,36 @@ import { AuthService } from "../../services/auth.service";
       <div class="services-grid">
         <!-- Upis deteta -->
         <div class="card">
-          <h3>👶 Upis deteta u vrtić</h3>
+          <h3>👶 Zahtev za upis u vrtić</h3>
+          <p class="hint-text">
+            Izaberite dete koje ste već dodali u evidenciju i vrtić u koji želite upis.
+            Deca koja su već upisana u vrtić ne pojavljuju se u listi.
+          </p>
           <form (ngSubmit)="podnesZahtev()" #zahtevForm="ngForm">
             <div class="form-section">
-              <h4>Podaci o detetu</h4>
-
+              <h4>Dete</h4>
               <div class="form-group">
-                <label for="ime">Ime deteta</label>
-                <input
-                  type="text"
-                  id="ime"
-                  name="ime"
+                <label for="deteZahtev">Izaberite dete</label>
+                <select
+                  id="deteZahtev"
+                  name="deteZahtev"
                   class="form-control"
-                  [(ngModel)]="noviZahtev.dete.ime"
+                  [(ngModel)]="zahtevFormular.deteId"
                   required
-                  placeholder="Marko"
-                />
+                >
+                  <option value="">— izaberite dete —</option>
+                  <option *ngFor="let d of decaZaZahtev" [value]="d.id">
+                    {{ d.ime }} {{ d.prezime }} (JMBG: {{ d.jmbg }})
+                  </option>
+                </select>
               </div>
-
-              <div class="form-group">
-                <label for="prezime">Prezime deteta</label>
-                <input
-                  type="text"
-                  id="prezime"
-                  name="prezime"
-                  class="form-control"
-                  [(ngModel)]="noviZahtev.dete.prezime"
-                  required
-                  placeholder="Petrović"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="jmbgDeteta">JMBG deteta</label>
-                <input
-                  type="text"
-                  id="jmbgDeteta"
-                  name="jmbgDeteta"
-                  class="form-control"
-                  [(ngModel)]="noviZahtev.dete.jmbg"
-                  required
-                  maxlength="13"
-                  placeholder="1234567890123"
-                />
-              </div>
-
-              <div class="form-group">
-                <label for="datumRodjenja">Datum rođenja</label>
-                <input
-                  type="date"
-                  id="datumRodjenja"
-                  name="datumRodjenja"
-                  class="form-control"
-                  [(ngModel)]="noviZahtev.dete.datumRodj"
-                  required
-                />
-              </div>
-
+              <p *ngIf="deca.length > 0 && decaZaZahtev.length === 0" class="text-muted small">
+                Sva vaša deca su već upisana u vrtić ili nemaju ID u sistemu.
+              </p>
+              <p *ngIf="deca.length === 0" class="text-muted small">
+                Nemate unetog deteta.
+                <a routerLink="/predskolske/dodaj-dete">Dodaj dete</a>
+              </p>
             </div>
 
             <div class="form-section">
@@ -104,7 +77,7 @@ import { AuthService } from "../../services/auth.service";
                   id="vrtic"
                   name="vrtic"
                   class="form-control"
-                  [(ngModel)]="noviZahtev.vrticId"
+                  [(ngModel)]="zahtevFormular.vrticId"
                   required
                 >
                   <option value="">Izaberite vrtić</option>
@@ -121,7 +94,7 @@ import { AuthService } from "../../services/auth.service";
             <button
               type="submit"
               class="btn btn-success"
-              [disabled]="!zahtevForm.form.valid || isLoading"
+              [disabled]="!zahtevForm.form.valid || isLoading || decaZaZahtev.length === 0"
             >
               {{ isLoading ? "Podnošenje zahteva..." : "Podnesi zahtev" }}
             </button>
@@ -165,9 +138,6 @@ import { AuthService } from "../../services/auth.service";
         <div class="card">
           <h3>🔧 Test funkcionalnosti</h3>
           <div class="test-buttons">
-            <button class="btn btn-secondary" (click)="testService()">
-              Test Predškolske servisa
-            </button>
             <button class="btn btn-secondary" (click)="testAPI()">
               Test API
             </button>
@@ -206,6 +176,7 @@ import { AuthService } from "../../services/auth.service";
 
   <div *ngIf="zahtevi.length > 0">
     <div *ngFor="let z of zahtevi" class="vrtic-item">
+      <p><strong>Dete:</strong> {{ getDetePrikazZaZahtev(z.deteId) }}</p>
       <p><strong>Vrtić:</strong> {{ getVrticNaziv(z.vrticId) }}</p>
       <p><strong>Status:</strong> {{ z.status || 'NA_CEKANJU' }}</p>
       <p *ngIf="z.status === 'ODBIJEN' && z.napomena" class="text-danger">
@@ -327,6 +298,21 @@ import { AuthService } from "../../services/auth.service";
         font-weight: 600;
       }
 
+      .hint-text {
+        color: #555;
+        font-size: 0.95rem;
+        margin-bottom: 1rem;
+        line-height: 1.45;
+      }
+
+      .text-muted {
+        color: #666;
+      }
+
+      .small {
+        font-size: 0.9rem;
+      }
+
       @media (max-width: 768px) {
         .services-grid {
           grid-template-columns: 1fr;
@@ -347,16 +333,19 @@ export class PredskolskeComponent implements OnInit {
   private predskolskeService = inject(PredskolskeService);
   authService = inject(AuthService);
 
-  noviZahtev = {
-    dete: {
-      ime: "",
-      prezime: "",
-      jmbg: "",
-      datumRodj: "",
-      korisnikId: "",
-    },
+  /** Samo zahtev: postojeće dete + vrtić (bez kreiranja novog deteta na ovoj stranici). */
+  zahtevFormular = {
+    deteId: "",
     vrticId: "",
   };
+
+  /** Deca roditelja koja još nisu upisana u vrtić (nema smislenog vrticID). */
+  get decaZaZahtev(): Dete[] {
+    return this.deca.filter((d) => {
+      const v = d.vrticID?.trim();
+      return !!d.id && !v;
+    });
+  }
 
   vrtici: Vrtic[] = [];
   isLoading = false;
@@ -373,85 +362,47 @@ export class PredskolskeComponent implements OnInit {
     this.loadMojaDeca();
   }
 
-  /*podnesZahtev() {
+  podnesZahtev() {
+    if (!this.zahtevFormular.deteId || !this.zahtevFormular.vrticId) {
+      this.zahtevStatus = {
+        type: "alert-error",
+        message: "Izaberite dete i vrtić.",
+      };
+      return;
+    }
+
     this.isLoading = true;
     this.zahtevStatus = null;
 
-    this.predskolskeService.podnesZahtev(this.noviZahtev).subscribe({
-      next: (response) => {
+    const zahtev: ZahtevZaUpis = {
+      deteId: this.zahtevFormular.deteId,
+      vrticId: this.zahtevFormular.vrticId,
+    };
+
+    this.predskolskeService.dodajZahtev(zahtev).subscribe({
+      next: () => {
         this.isLoading = false;
         this.zahtevStatus = {
           type: "alert-success",
-          message: "✅ Zahtev za upis je uspešno podnet!",
+          message: "✅ Zahtev uspešno podnet!",
         };
         this.resetZahtevForm();
-        this.loadVrtici(); // Refresh vrtici list
+        this.loadVrtici();
+        this.loadMojiZahtevi();
       },
-      error: (error) => {
+      error: (error: { error?: { error?: string }; message?: string }) => {
         this.isLoading = false;
+        const msg =
+          error.error?.error ||
+          error.message ||
+          "Greška pri podnošenju zahteva.";
         this.zahtevStatus = {
           type: "alert-error",
-          message: `❌ Greška: ${error.error?.message || error.message}`,
+          message: `❌ ${msg}`,
         };
       },
     });
-  }*/
-
-  podnesZahtev() {
-  this.isLoading = true;
-  this.zahtevStatus = null;
-
-  this.noviZahtev.dete.korisnikId = this.authService.getCurrentUserId();
-
-  // 1. prvo kreiramo dete
-  this.predskolskeService.dodajDete(this.noviZahtev.dete).subscribe({
-    next: (dete) => {
-
-      // ⚠️ Provera da li je ID deteta validan
-      if (!dete.id) {
-        this.isLoading = false;
-        this.zahtevStatus = {
-          type: "alert-error",
-          message: "❌ Greška: Dete nije kreirano, ID nije dostupan.",
-        };
-        return; // prekida dalje izvršavanje
-      }
-
-      // 2. pravimo zahtev sa deteId
-      const zahtev: ZahtevZaUpis = {
-        deteId: dete.id,
-        vrticId: this.noviZahtev.vrticId,
-      };
-
-      // 3. šaljemo zahtev
-      this.predskolskeService.dodajZahtev(zahtev).subscribe({
-        next: () => {
-          this.isLoading = false;
-          this.zahtevStatus = {
-            type: "alert-success",
-            message: "✅ Zahtev uspešno podnet!",
-          };
-          this.resetZahtevForm();
-          this.loadVrtici();
-        },
-        error: (error) => {
-          this.isLoading = false;
-          this.zahtevStatus = {
-            type: "alert-error",
-            message: error.message,
-          };
-        },
-      });
-    },
-    error: (error) => {
-      this.isLoading = false;
-      this.zahtevStatus = {
-        type: "alert-error",
-        message: error.message,
-      };
-    },
-  });
-}
+  }
 
 
   loadVrtici() {
@@ -493,23 +444,6 @@ export class PredskolskeComponent implements OnInit {
     });
   }
 
-  testService() {
-    this.predskolskeService.testService().subscribe({
-      next: (response) => {
-        this.testStatus = {
-          type: "alert-success",
-          message: `✅ Predškolske servis radi: ${response.status}`,
-        };
-      },
-      error: (error) => {
-        this.testStatus = {
-          type: "alert-error",
-          message: `❌ Predškolske servis ne radi: ${error.message}`,
-        };
-      },
-    });
-  }
-
   testAPI() {
     this.predskolskeService.testAPI().subscribe({
       next: (response) => {
@@ -530,10 +464,9 @@ export class PredskolskeComponent implements OnInit {
 //deca
 
 loadMojaDeca() {
-  const currentUserId = this.authService.getCurrentUserId();
-  this.predskolskeService.getDeca().subscribe({
+  this.predskolskeService.getMojaDeca().subscribe({
     next: (data) => {
-      this.deca = data.filter(d => d.korisnikId === currentUserId);
+      this.deca = data;
       this.loadMojiZahtevi();
     },
     error: (err) => {
@@ -570,17 +503,19 @@ getVrticNaziv(vrticId: string): string {
   return vrtic ? vrtic.naziv : vrticId;
 }
 
+getDetePrikazZaZahtev(deteId: string): string {
+  const d = this.deca.find((x) => x.id === deteId);
+  if (d) {
+    return `${d.ime} ${d.prezime}`.trim();
+  }
+  return deteId ? `ID: ${deteId}` : "—";
+}
+
 
 
   private resetZahtevForm() {
-    this.noviZahtev = {
-      dete: {
-        ime: "",
-        prezime: "",
-        jmbg: "",
-        datumRodj: "",
-        korisnikId: "",
-      },
+    this.zahtevFormular = {
+      deteId: "",
       vrticId: "",
     };
   }

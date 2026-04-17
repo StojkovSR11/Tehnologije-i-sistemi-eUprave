@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { PredskolskeService, Vrtic } from '../../../services/predskolske.service';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { RoleService } from '../../../services/role.service';
 
 @Component({
   selector: 'app-vrtici',
@@ -17,10 +18,17 @@ export class VrticiComponent implements OnInit {
   statusMessage: string = '';
   statusClass: string = '';
 
+  private roleService = inject(RoleService);
+  private location = inject(Location);
+
   constructor(
     private predskolskeService: PredskolskeService,
     private router: Router
   ) {}
+
+  get jeAdmin(): boolean {
+    return this.roleService.canAccessPreschoolAdvanced();
+  }
 
   ngOnInit(): void {
     this.ucitajVrtice();
@@ -60,7 +68,11 @@ export class VrticiComponent implements OnInit {
   }
 
   nazad() {
-    this.router.navigate(['/predskolske/admin']);
+    if (this.jeAdmin) {
+      this.router.navigate(['/predskolske/admin']);
+    } else {
+      this.location.back();
+    }
   }
 
   prikaziStatus(message: string, type: string) {

@@ -89,7 +89,7 @@ export const routes: Routes = [
 {
   path: 'predskolske/vrtici',
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['ADMIN'] },
+  data: { roles: ['ADMIN', 'CITIZEN'] },
   loadComponent: () =>
     import('./pages/predskolske/vrtici/vrtici.component').then(
       (m) => m.VrticiComponent

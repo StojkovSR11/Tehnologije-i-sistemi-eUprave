@@ -29,14 +29,6 @@
         <input type="date" [(ngModel)]="novoDete.datumRodj" name="datumRodj" required>
       </label>
 
-      <label>
-        Grupa:
-        <select [(ngModel)]="novoDete.grupaID" name="grupaID">
-          <option value="">-- Odaberite grupu --</option>
-          <option *ngFor="let grupa of grupe" [value]="grupa.id">{{ grupa.naziv }}</option>
-        </select>
-      </label>
-
       <div class="card-actions">
         <button type="submit" class="btn btn-success">➕ Dodaj dete</button>
         <button type="button" class="btn btn-secondary" (click)="odustani()">❌ Odustani</button>

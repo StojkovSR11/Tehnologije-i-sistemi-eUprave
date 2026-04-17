@@ -22,7 +22,9 @@ import { AuthService } from '../../../../services/auth.service';
         <dt>JMBG</dt><dd>{{ dete.jmbg }}</dd>
         <dt>Datum rođenja</dt><dd>{{ dete.datumRodj }}</dd>
         <dt>Korisnik ID</dt><dd>{{ dete.korisnikId }}</dd>
-        <dt>Grupa ID</dt><dd>{{ dete.grupaID || '—' }}</dd>
+        <ng-container *ngIf="auth.getCurrentUser()?.role === 'ADMIN'">
+          <dt>Grupa ID</dt><dd>{{ dete.grupaID || '—' }}</dd>
+        </ng-container>
       </dl>
 
       <div class="akcije">

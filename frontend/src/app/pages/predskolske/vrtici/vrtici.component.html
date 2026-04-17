@@ -7,15 +7,15 @@
         <th>Naziv</th>
         <th>Kapacitet</th>
         <th>Broj slobodnih mesta</th>
-        <th>Akcije</th>
+        <th *ngIf="jeAdmin">Akcije</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngFor="let v of vrtici">
         <td>{{ v.naziv }}</td>
         <td>{{ v.kapacitet }}</td>
-        <td>{{ v.kapacitet - (v.brojUpisanihDece || 0) }}</td>
-        <td class="card-actions">
+        <td>{{ getBrojSlobodnihMesta(v) }}</td>
+        <td *ngIf="jeAdmin" class="card-actions">
           <button class="btn btn-primary" (click)="urediVrtic(v)">Uredi</button>
           <button class="btn btn-danger" (click)="obrisiVrtic(v)" 
                   [disabled]="(v.brojUpisanihDece || 0) > 0">Obriši</button>
@@ -25,8 +25,8 @@
   </table>
 
   <div class="card-actions">
-    <button class="btn btn-secondary" routerLink="/predskolske/admin">⬅️ Nazad na admin</button>
-    <button class="btn btn-success" routerLink="/predskolske/dodaj-vrtic">➕ Dodaj vrtić</button>
+    <button type="button" class="btn btn-secondary" (click)="nazad()">⬅️ Nazad</button>
+    <button *ngIf="jeAdmin" class="btn btn-success" routerLink="/predskolske/dodaj-vrtic">➕ Dodaj vrtić</button>
   </div>
 
   <div *ngIf="statusMessage" [ngClass]="statusClass" class="alert">
