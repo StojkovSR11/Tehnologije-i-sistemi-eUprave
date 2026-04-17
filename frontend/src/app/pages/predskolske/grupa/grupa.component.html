@@ -1,39 +1,53 @@
-<div class="deca-container">
-  <h2>Lista grupa</h2>
+<div class="grupe-wrap">
+  <h2>Upravljanje grupama</h2>
 
-  <ul>
-    <li *ngFor="let grupa of grupe">
-      <b>{{ grupa.naziv }}</b> 
-      - Kapacitet: {{ grupa.kapacitet }}
-      - Broj dece: {{ grupa.listaDece?.length || 0 }}
-
-      <button (click)="dodajDete(grupa.id!)">
-        Dodaj dete
-      </button>
-    </li>
-  </ul>
-
-  <!-- 🔵 KREIRANJE GRUPE (KAO DETE) -->
-  <h3>Dodaj novu grupu</h3>
-
-  <form (ngSubmit)="dodajGrupu()">
-    <div>
-      <label>Naziv:</label>
-      <input type="text" [(ngModel)]="novaGrupa.naziv" name="naziv" required>
+  <div class="toolbar">
+    <div class="form-group">
+      <label for="vrtic-select">Izaberite vrtić</label>
+      <select id="vrtic-select" [(ngModel)]="izabraniVrticID" (change)="promeniVrtic()">
+        <option value="">-- Izaberite --</option>
+        <option *ngFor="let v of vrtici" [value]="v.id">{{ v.naziv }}</option>
+      </select>
     </div>
+    <a class="btn btn-secondary" routerLink="/predskolske/admin">Nazad na admin</a>
+  </div>
 
-    <div>
-      <label>Vrtic ID:</label>
-      <input type="text" [(ngModel)]="novaGrupa.vrticID" name="vrticID" required>
+  <div *ngIf="poruka" [class]="tipPoruke === 'success' ? 'alert alert-success' : 'alert alert-error'">
+    {{ poruka }}
+  </div>
+
+  <div class="card" *ngIf="izabraniVrticID">
+    <h3>Dodaj novu grupu</h3>
+    <form (ngSubmit)="dodajGrupu()" class="inline-form">
+      <input type="text" [(ngModel)]="novaGrupa.naziv" name="naziv" placeholder="Naziv grupe" required />
+      <input type="number" [(ngModel)]="novaGrupa.kapacitet" name="kapacitet" min="1" placeholder="Kapacitet" required />
+      <button type="submit" class="btn btn-primary">Dodaj grupu</button>
+    </form>
+  </div>
+
+  <div class="card" *ngIf="izabraniVrticID">
+    <h3>Grupe u vrtiću</h3>
+    <div *ngIf="grupe.length === 0">Nema grupa za izabrani vrtić.</div>
+
+    <div *ngFor="let grupa of grupe" class="grupa-item">
+      <p><strong>{{ grupa.naziv }}</strong></p>
+      <p>Kapacitet: {{ grupa.kapacitet }}</p>
+      <p>Popunjeno: {{ grupa.listaDece?.length || 0 }}</p>
+
+      <div *ngIf="(grupa.listaDece?.length || 0) > 0" class="lista-djece">
+        <span *ngFor="let deteID of grupa.listaDece">{{ nazivDeteta(deteID) }}</span>
+      </div>
+
+      <div class="inline-form">
+        <select [(ngModel)]="selektovanaDecaPoGrupi[grupa.id!]" [name]="'dete-' + grupa.id">
+          <option value="">Izaberite dete bez grupe</option>
+          <option *ngFor="let d of raspolozivaDeca" [value]="d.id">
+            {{ d.ime }} {{ d.prezime }}
+          </option>
+        </select>
+        <button class="btn btn-success" type="button" (click)="dodajDete(grupa.id!)">Rasporedi</button>
+        <button class="btn btn-danger" type="button" (click)="obrisiGrupu(grupa)">Obriši grupu</button>
+      </div>
     </div>
-
-    <div>
-      <label>Kapacitet:</label>
-      <input type="number" [(ngModel)]="novaGrupa.kapacitet" name="kapacitet" required>
-    </div>
-
-    <button type="submit">Dodaj grupu</button>
-  </form>
-
-  <p *ngIf="poruka">{{ poruka }}</p>
+  </div>
 </div>

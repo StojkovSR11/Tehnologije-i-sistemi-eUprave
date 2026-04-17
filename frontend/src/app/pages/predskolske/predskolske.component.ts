@@ -31,9 +31,6 @@ import { AuthService } from "../../services/auth.service";
   <button class="btn btn-info" routerLink="/predskolske/vrtici">
     Prikazi vrtiće
   </button>
-  <button class="btn btn-warning" routerLink="/predskolske/grupe">
-    Grupe
-  </button>
 </div>
 
       <div class="services-grid">

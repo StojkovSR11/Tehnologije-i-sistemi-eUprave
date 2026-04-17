@@ -45,6 +45,9 @@ import { Router } from '@angular/router';
     <button class="btn btn-primary" (click)="prikaziDecu()">
   Prikaži decu
     </button>
+            <button class="btn btn-warning" (click)="prikaziGrupe()">
+              Upravljanje grupama
+            </button>
     <!-- Dugme Dodaj dete uklonjeno -->
   </div>
   <div *ngIf="decaStatus" [ngClass]="decaStatus.type" class="alert">
@@ -199,6 +202,10 @@ addVrtic() {
 
   prikaziDecu() {
   this.router.navigate(['/predskolske/deca']);
+}
+
+prikaziGrupe() {
+  this.router.navigate(['/predskolske/grupe']);
 }
 
   addDete() {

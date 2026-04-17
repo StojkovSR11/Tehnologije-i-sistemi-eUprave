@@ -10,16 +10,22 @@ import (
 )
 
 type GrupaService struct {
-	grupaRepo *repository.GrupaRepository
-	deteRepo  *repository.DeteRepository
-	ctx       context.Context
+	grupaRepo  *repository.GrupaRepository
+	deteRepo   *repository.DeteRepository
+	zahtevRepo *repository.ZahtevRepository
+	ctx        context.Context
 }
 
-func NewGrupaService(grupaRepo *repository.GrupaRepository, deteRepo *repository.DeteRepository) *GrupaService {
+func NewGrupaService(
+	grupaRepo *repository.GrupaRepository,
+	deteRepo *repository.DeteRepository,
+	zahtevRepo *repository.ZahtevRepository,
+) *GrupaService {
 	return &GrupaService{
-		grupaRepo: grupaRepo,
-		deteRepo:  deteRepo,
-		ctx:       context.Background(),
+		grupaRepo:  grupaRepo,
+		deteRepo:   deteRepo,
+		zahtevRepo: zahtevRepo,
+		ctx:        context.Background(),
 	}
 }
 
@@ -118,6 +124,11 @@ func (s *GrupaService) AddDeteToGrupa(deteID string, grupaID string) error {
 		return errors.New("dete je vec rasporedjeno u grupu")
 	}
 
+	// Dete mora prvo biti upisano u vrtic (kroz odobren zahtev)
+	if dete.VrticID == "" {
+		return errors.New("dete nije upisano u vrtic")
+	}
+
 	// 3. Dohvati grupu
 	grupa, err := s.grupaRepo.GetByID(grupaObjID)
 	if err != nil {
@@ -125,6 +136,24 @@ func (s *GrupaService) AddDeteToGrupa(deteID string, grupaID string) error {
 	}
 	if grupa == nil {
 		return errors.New("grupa ne postoji")
+	}
+
+	// Dete moze biti rasporedjeno samo u grupu svog vrtica
+	if dete.VrticID != grupa.VrticID {
+		return errors.New("dete moze biti rasporedjeno samo u grupu svog vrtica")
+	}
+
+	// Dodatna poslovna provera: mora postojati odobren zahtev za ovo dete i vrtic
+	deteVrticObjID, err := primitive.ObjectIDFromHex(dete.VrticID)
+	if err != nil {
+		return errors.New("neispravan vrtic kod deteta")
+	}
+	zahtev, err := s.zahtevRepo.GetByDeteAndVrtic(deteObjID, deteVrticObjID)
+	if err != nil {
+		return err
+	}
+	if zahtev == nil || zahtev.Status != model.StatusOdobren {
+		return errors.New("dete nema odobren zahtev za ovaj vrtic")
 	}
 
 	// 4. Provera kapaciteta

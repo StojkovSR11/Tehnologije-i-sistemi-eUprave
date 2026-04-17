@@ -26,8 +26,12 @@ func (h *DeteHandler) KreirajDete(c *gin.Context) {
 		return
 	}
 
-	id := primitive.NewObjectID() // generiše novi ObjectID
-    novoDete, err := h.service.CreateDete(&dete, id)
+	if dete.KorisnikID.IsZero() {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "korisnikId je obavezan"})
+		return
+	}
+
+	novoDete, err := h.service.CreateDete(&dete, dete.KorisnikID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "greska pri kreiranju deteta"})
 		return

@@ -278,4 +278,16 @@ dodajGrupu(grupa: Grupa): Observable<Grupa> {
   });
 }
 
+azurirajGrupu(id: string, grupa: Grupa): Observable<Grupa> {
+  return this.http.put<Grupa>(`${this.API_URL}/grupa/${id}`, grupa, {
+    headers: this.getHeaders(),
+  });
+}
+
+obrisiGrupu(id: string): Observable<any> {
+  return this.http.delete(`${this.API_URL}/grupa/${id}`, {
+    headers: this.getHeaders(),
+  });
+}
+
 }

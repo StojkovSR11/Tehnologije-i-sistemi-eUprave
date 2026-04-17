@@ -29,16 +29,20 @@ func NewZahtevService(zahtevRepo *repository.ZahtevRepository,
 }
 
 // Kreiranje novog zahteva za upis
-func (s *ZahtevService) CreateZahtev(zahtev *model.ZahtevZaUpis) (*model.ZahtevZaUpis, error) {
+func (s *ZahtevService) CreateZahtev(zahtev *model.ZahtevZaUpis, korisnikID primitive.ObjectID) (*model.ZahtevZaUpis, error) {
 
 	// Provera da li je prosleđen DeteID i VrticID
 	if zahtev.DeteID.IsZero() || zahtev.VrticID.IsZero() {
 		return nil, errors.New("DeteID i VrticID su obavezni")
 	}
 
-	// Provera da li dete postoji
-	if _, err := s.deteRepo.GetByID(zahtev.DeteID); err != nil {
+	// Provera da li dete postoji i pripada ulogovanom korisniku
+	dete, err := s.deteRepo.GetByID(zahtev.DeteID)
+	if err != nil {
 		return nil, errors.New("dete ne postoji")
+	}
+	if dete.KorisnikID != korisnikID {
+		return nil, errors.New("nije dozvoljeno podneti zahtev za tudje dete")
 	}
 
 	// Provera da li vrtic postoji

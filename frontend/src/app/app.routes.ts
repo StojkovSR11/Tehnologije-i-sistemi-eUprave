@@ -58,7 +58,7 @@ export const routes: Routes = [
 {
   path: "predskolske/grupe",
   canActivate: [AuthGuard, RoleGuard],
-  data: { roles: ['CITIZEN', 'ADMIN'] },
+  data: { roles: ['ADMIN'] },
   loadComponent: () =>
     import('./pages/predskolske/grupa/grupa.component').then(
       (m) => m.GrupeComponent

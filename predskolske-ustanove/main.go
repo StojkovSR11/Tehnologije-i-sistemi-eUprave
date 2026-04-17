@@ -56,8 +56,7 @@ func main() {
 	deteService := service.NewDeteService(deteRepo)
 	vrticService := service.NewVrticService(vrticRepo)
 	zahtevService := service.NewZahtevService(zahtevRepo, deteRepo, vrticRepo)
-	grupaService := service.NewGrupaService(grupaRepo, deteRepo)
-
+	grupaService := service.NewGrupaService(grupaRepo, deteRepo, zahtevRepo)
 
 	// Inicijalizacija handler-a
 	deteHandler := handler.NewDeteHandler(deteService)
@@ -94,34 +93,32 @@ func main() {
 		api.PUT("/vrtic/:id", vrticHandler.AzurirajVrtic)
 		api.DELETE("/vrtic/:id", vrticHandler.ObrisiVrtic)
 
-		// Zahtev
-		api.POST("/zahtev", zahtevHandler.KreirajZahtev)
+		// Zahtev (read/update za admin tok)
 		api.GET("/zahtev/:id", zahtevHandler.ZahtevPoID)
 		api.GET("/zahtev", zahtevHandler.SviZahtevi)
 		api.PUT("/zahtev/:id", zahtevHandler.AzurirajZahtev)
 		api.DELETE("/zahtev/:id", zahtevHandler.ObrisiZahtev)
 
 		api.PUT("/zahtev/:id/odobri", zahtevHandler.OdobriZahtev)
-        api.PUT("/zahtev/:id/odbij", zahtevHandler.OdbijZahtev)
+		api.PUT("/zahtev/:id/odbij", zahtevHandler.OdbijZahtev)
 
-        // Grupa
-        api.POST("/grupa", grupaHandler.KreirajGrupu)
-        api.GET("/grupa/:id", grupaHandler.GrupaPoID)
-        api.GET("/grupe/:vrticID", grupaHandler.SveGrupe)
-        api.PUT("/grupa/:id", grupaHandler.AzurirajGrupu)
-        api.DELETE("/grupa/:id", grupaHandler.ObrisiGrupu)
+		// Grupa
+		api.POST("/grupa", grupaHandler.KreirajGrupu)
+		api.GET("/grupa/:id", grupaHandler.GrupaPoID)
+		api.GET("/grupe/:vrticID", grupaHandler.SveGrupe)
+		api.PUT("/grupa/:id", grupaHandler.AzurirajGrupu)
+		api.DELETE("/grupa/:id", grupaHandler.ObrisiGrupu)
 
-
-        api.POST("/grupa/dodaj-dete", grupaHandler.DodajDeteUGrupu)
+		api.POST("/grupa/dodaj-dete", grupaHandler.DodajDeteUGrupu)
 	}
 
-    auth := api.Group("/")
-	    auth.Use(middleware.JWTAuthMiddleware())
-	    {
-		    auth.GET("/moja-deca", deteHandler.MojaDeca)
-		    auth.POST("/moje-dete", deteHandler.KreirajMojeDete)
-	    }
-
+	auth := api.Group("/")
+	auth.Use(middleware.JWTAuthMiddleware())
+	{
+		auth.GET("/moja-deca", deteHandler.MojaDeca)
+		auth.POST("/moje-dete", deteHandler.KreirajMojeDete)
+		auth.POST("/zahtev", zahtevHandler.KreirajZahtev)
+	}
 
 	log.Println("Predskolske ustanove service starting on port 8081")
 	if err := r.Run(":8081"); err != nil {

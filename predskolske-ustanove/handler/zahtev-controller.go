@@ -6,6 +6,7 @@ import (
 	"predskolske-ustanove/service"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type ZahtevHandler struct {
@@ -24,7 +25,18 @@ func (h *ZahtevHandler) KreirajZahtev(c *gin.Context) {
 		return
 	}
 
-	noviZahtev, err := h.service.CreateZahtev(&zahtev)
+	korisnikIDVal, exists := c.Get("korisnikID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "korisnik nije ulogovan"})
+		return
+	}
+	korisnikID, ok := korisnikIDVal.(primitive.ObjectID)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "neispravan korisnik"})
+		return
+	}
+
+	noviZahtev, err := h.service.CreateZahtev(&zahtev, korisnikID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
