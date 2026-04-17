@@ -10,6 +10,7 @@ export interface Dete {
   jmbg: string;
   datumRodj: string;
   korisnikId: string;
+  vrticID?: string;
   grupaID?: string;
 }
 
@@ -19,7 +20,8 @@ export interface ZahtevZaUpis {
   //dete: Dete;
   vrticId: string;
   status?: string;
-  datumZahteva?: string;
+  datumPodnosenja?: string;
+  napomena?: string;
 }
 
 export interface Vrtic {

@@ -64,9 +64,6 @@ import { Router } from '@angular/router';
               Obradi čekajuće
             </button>
           </div>
-          <div *ngIf="zahteviStatus" [ngClass]="zahteviStatus.type" class="alert">
-            {{ zahteviStatus.message }}
-          </div>
         </div>
 
         <!-- Statistike -->
@@ -84,19 +81,6 @@ import { Router } from '@angular/router';
           <div *ngIf="statisticsStatus" [ngClass]="statisticsStatus.type" class="alert">
             {{ statisticsStatus.message }}
           </div>
-        </div>
-      </div>
-
-      
-
-
-      <!-- Brzi pristup -->
-      <div class="quick-access">
-        <h3>Brzi pristup</h3>
-        <div class="quick-actions">
-          <a routerLink="/predskolske" class="btn btn-secondary">🎓 Osnovni predskolske</a>
-          <a routerLink="/admin" class="btn btn-danger">⚙️ Admin panel</a>
-          <a routerLink="/" class="btn btn-secondary">🏠 Početna</a>
         </div>
       </div>
 
@@ -165,26 +149,6 @@ import { Router } from '@angular/router';
       margin-bottom: 15px;
     }
 
-    .quick-access {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .quick-access h3 {
-      color: #2c3e50;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    .quick-actions {
-      display: flex;
-      gap: 15px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
     @media (max-width: 768px) {
       .admin-header h1 {
         font-size: 1.8rem;
@@ -194,7 +158,7 @@ import { Router } from '@angular/router';
         grid-template-columns: 1fr;
       }
       
-      .card-actions, .quick-actions {
+      .card-actions {
         flex-direction: column;
       }
     }
@@ -245,24 +209,13 @@ addVrtic() {
   }
 
   loadZahtevi() {
-    this.zahteviStatus = {
-      type: 'alert-info',
-      message: 'Učitavanje zahteva...'
-    };
-    
-    setTimeout(() => {
-      this.zahteviStatus = {
-        type: 'alert-success',
-        message: '✅ Učitano 23 zahteva (15 čeka odobrenje, 8 odobreno)'
-      };
-    }, 1000);
+    this.router.navigate(['/predskolske/admin/zahtevi']);
   }
 
   processPendingRequests() {
-    this.zahteviStatus = {
-      type: 'alert-info',
-      message: 'Funkcionalnost obrade zahteva će biti implementirana'
-    };
+    this.router.navigate(['/predskolske/admin/zahtevi'], {
+      queryParams: { status: 'NA_CEKANJU' }
+    });
   }
 
   loadStatistics() {

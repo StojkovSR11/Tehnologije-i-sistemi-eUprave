@@ -209,8 +209,11 @@ import { AuthService } from "../../services/auth.service";
 
   <div *ngIf="zahtevi.length > 0">
     <div *ngFor="let z of zahtevi" class="vrtic-item">
-      <p><strong>Vrtić ID:</strong> {{ z.vrticId }}</p>
-      <p><strong>Status:</strong> {{ z.status || 'Na čekanju' }}</p>
+      <p><strong>Vrtić:</strong> {{ getVrticNaziv(z.vrticId) }}</p>
+      <p><strong>Status:</strong> {{ z.status || 'NA_CEKANJU' }}</p>
+      <p *ngIf="z.status === 'ODBIJEN' && z.napomena" class="text-danger">
+        <strong>Poruka:</strong> {{ z.napomena }}
+      </p>
     </div>
   </div>
 
@@ -371,7 +374,6 @@ export class PredskolskeComponent implements OnInit {
   ngOnInit() {
     this.loadVrtici();
     this.loadMojaDeca();
-    this.loadMojiZahtevi();
   }
 
   /*podnesZahtev() {
@@ -535,6 +537,7 @@ loadMojaDeca() {
   this.predskolskeService.getDeca().subscribe({
     next: (data) => {
       this.deca = data.filter(d => d.korisnikId === currentUserId);
+      this.loadMojiZahtevi();
     },
     error: (err) => {
       console.error("Greška pri učitavanju dece", err);
@@ -554,14 +557,20 @@ obrisiDete(deteId: string) {
 //zahtevi
 
 loadMojiZahtevi() {
+  const mojaDecaIds = new Set(this.deca.map((d) => d.id).filter((id): id is string => !!id));
   this.predskolskeService.getZahtevi().subscribe({
     next: (data) => {
-      this.zahtevi = data;
+      this.zahtevi = data.filter((z) => mojaDecaIds.has(z.deteId));
     },
     error: (err) => {
       console.error("Greška pri učitavanju zahteva", err);
     },
   });
+}
+
+getVrticNaziv(vrticId: string): string {
+  const vrtic = this.vrtici.find((v) => v.id === vrticId);
+  return vrtic ? vrtic.naziv : vrticId;
 }
 
 

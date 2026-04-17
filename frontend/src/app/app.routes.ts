@@ -127,6 +127,16 @@ export const routes: Routes = [
     ),
 },
 
+{
+  path: 'predskolske/admin/zahtevi',
+  canActivate: [AuthGuard, RoleGuard],
+  data: { roles: ['ADMIN'] },
+  loadComponent: () =>
+    import('./pages/predskolske/zahtevi/zahtevi.component').then(
+      m => m.ZahteviComponent
+    ),
+},
+
 // Korisnik rute za decu
 {
   path: 'predskolske/moje-dete',

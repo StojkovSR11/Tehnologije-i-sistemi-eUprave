@@ -70,6 +70,7 @@ func (r *DeteRepository) Update(id primitive.ObjectID, dete *model.Dete) (*mongo
 			"ime":        dete.Ime,
 			"prezime":    dete.Prezime,
 			"datumRodj":  dete.DatumRodj,
+			"vrticID":    dete.VrticID,
 			"grupaID":    dete.GrupaID,
 			"korisnik_id": dete.KorisnikID,
 		},

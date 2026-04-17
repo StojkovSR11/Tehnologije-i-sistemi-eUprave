@@ -134,6 +134,12 @@ func (s *ZahtevService) OdobriZahtev(id string) (*model.ZahtevZaUpis, error) {
 		return nil, errors.New("vrtic ne postoji")
 	}
 
+	// 4.1 pronadji dete koje se upisuje
+	dete, err := s.deteRepo.GetByID(zahtev.DeteID)
+	if err != nil {
+		return nil, errors.New("dete ne postoji")
+	}
+
 	// 5. provjera slobodnih mjesta
 	if vrtic.BrojSlobodnihMesta <= 0 {
 		zahtev.Status = model.StatusOdbijen
@@ -161,6 +167,13 @@ func (s *ZahtevService) OdobriZahtev(id string) (*model.ZahtevZaUpis, error) {
 	zahtev.Napomena = ""
 
 	_, err = s.repo.Update(zahtev.ID, zahtev)
+	if err != nil {
+		return nil, err
+	}
+
+	// 9. uspostavi vezu dete-vrtic; grupa ostaje za naknadnu raspodelu
+	dete.VrticID = zahtev.VrticID.Hex()
+	_, err = s.deteRepo.Update(dete.ID, dete)
 	if err != nil {
 		return nil, err
 	}

@@ -1,46 +1,39 @@
 <div class="zahtevi-container">
-  <h2>Zahtevi za upis</h2>
+  <h2>Upravljanje zahtevima za upis</h2>
 
-  <!-- Dodavanje novog zahteva -->
   <div class="card">
-    <h3>Dodaj novi zahtev</h3>
-    <form (ngSubmit)="dodajZahtev()" #form="ngForm">
-
-      <div class="form-group">
-        <label for="dete">Dete</label>
-        <select id="dete" name="dete" class="form-control" [(ngModel)]="noviZahtev.deteId" required>
-          <option value="">Izaberite dete</option>
-          <option *ngFor="let d of deca" [value]="d.korisnikId">{{ d.ime }} {{ d.prezime }}</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="vrtic">Vrtić</label>
-        <select id="vrtic" name="vrtic" class="form-control" [(ngModel)]="noviZahtev.vrticId" required>
-          <option value="">Izaberite vrtic</option>
-          <option *ngFor="let v of vrtici" [value]="v.id">{{ v.naziv }}</option>
-        </select>
-      </div>
-
-      <button type="submit" class="btn btn-success" [disabled]="isLoading || !form.form.valid">
-        {{ isLoading ? "Dodavanje..." : "Dodaj zahtev" }}
-      </button>
-    </form>
-
-    <div *ngIf="statusMessage" [ngClass]="statusMessage.type" class="alert mt-10">
-      {{ statusMessage.message }}
+    <div class="form-group">
+      <label for="status-filter">Filter statusa</label>
+      <select
+        id="status-filter"
+        class="form-control"
+        [(ngModel)]="filterStatus"
+        (change)="primeniFilter()"
+      >
+        <option value="SVI">Svi</option>
+        <option value="NA_CEKANJU">Na čekanju</option>
+        <option value="ODOBREN">Odobreni</option>
+        <option value="ODBIJEN">Odbijeni</option>
+      </select>
     </div>
+    <button class="btn btn-secondary" (click)="loadZahtevi()">Osveži</button>
+    <a class="btn btn-secondary" routerLink="/predskolske/admin">Nazad na admin</a>
   </div>
 
-  <!-- Lista zahteva -->
+  <div *ngIf="statusMessage" [ngClass]="statusMessage.type" class="alert mt-10">
+    {{ statusMessage.message }}
+  </div>
+
   <div class="card mt-20">
     <h3>Lista zahteva</h3>
-    <div *ngIf="zahtevi.length === 0">Nema podataka</div>
+    <div *ngIf="isLoading">Učitavanje zahteva...</div>
+    <div *ngIf="!isLoading && filtriraniZahtevi.length === 0">Nema zahteva za izabrani filter.</div>
+
     <ul>
-      <li *ngFor="let z of zahtevi">
+      <li *ngFor="let z of filtriraniZahtevi">
         Dete: {{ getDeteIme(z.deteId) }} | Vrtić: {{ getVrticNaziv(z.vrticId) }} | Status: {{ z.status }}
-        
-        <!-- Dugmad za admina/vaspitaca -->
+        <span *ngIf="z.status === 'ODBIJEN' && z.napomena"> | Napomena: {{ z.napomena }}</span>
+
         <button *ngIf="z.status === 'NA_CEKANJU'" class="btn btn-success btn-sm" (click)="odobriZahtev(z.id!)">
           Odobri
         </button>
@@ -48,8 +41,8 @@
           Odbij
         </button>
 
-        <button *ngIf="z.status === 'ODBIJENO' || z.status === 'ODOBRENO'" class="btn btn-secondary btn-sm" disabled>
-          Neaktivno
+        <button *ngIf="z.status !== 'NA_CEKANJU'" class="btn btn-secondary btn-sm" disabled>
+          Obrađeno
         </button>
       </li>
     </ul>
