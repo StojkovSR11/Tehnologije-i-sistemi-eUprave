@@ -6,24 +6,28 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"predskolske-ustanove/client"
 	"predskolske-ustanove/model"
 	"predskolske-ustanove/repository"
 )
 
 type ZahtevService struct {
-	repo      *repository.ZahtevRepository
-	deteRepo  *repository.DeteRepository
-	vrticRepo *repository.VrticRepository
-	ctx       context.Context
+	repo        *repository.ZahtevRepository
+	deteRepo    *repository.DeteRepository
+	vrticRepo   *repository.VrticRepository
+	zdravstvo   *client.ZdravstvoClient
+	ctx         context.Context
 }
 
 func NewZahtevService(zahtevRepo *repository.ZahtevRepository,
 	deteRepo *repository.DeteRepository,
-	vrticRepo *repository.VrticRepository) *ZahtevService {
+	vrticRepo *repository.VrticRepository,
+	zdravstvo *client.ZdravstvoClient) *ZahtevService {
 	return &ZahtevService{
 		repo:      zahtevRepo,
 		deteRepo:  deteRepo,
 		vrticRepo: vrticRepo,
+		zdravstvo: zdravstvo,
 		ctx:       context.Background(),
 	}
 }
@@ -144,6 +148,23 @@ func (s *ZahtevService) OdobriZahtev(id string) (*model.ZahtevZaUpis, error) {
 		return nil, errors.New("dete ne postoji")
 	}
 
+	// 4.2 zdravstvena evidencija (servis zdravstvo) — 2 GET razmene; ako nije spremno, odbij bez trošenja mjesta
+	if s.zdravstvo != nil {
+		spreman, napZdr, errZ := s.zdravstvo.ProveraZdravstveneSpremnosti(dete.JMBG)
+		if errZ != nil {
+			return nil, errZ
+		}
+		if !spreman {
+			zahtev.Status = model.StatusOdbijen
+			zahtev.Napomena = napZdr
+			_, err := s.repo.Update(zahtev.ID, zahtev)
+			if err != nil {
+				return nil, err
+			}
+			return zahtev, nil
+		}
+	}
+
 	// 5. provjera slobodnih mjesta
 	if vrtic.BrojSlobodnihMesta <= 0 {
 		zahtev.Status = model.StatusOdbijen
@@ -180,6 +201,11 @@ func (s *ZahtevService) OdobriZahtev(id string) (*model.ZahtevZaUpis, error) {
 	_, err = s.deteRepo.Update(dete.ID, dete)
 	if err != nil {
 		return nil, err
+	}
+
+	// 10. treća razmena sa zdravstvom (POST mock događaja) — ne utiče na ishod odobrenja
+	if s.zdravstvo != nil {
+		s.zdravstvo.EvidentirajOdobrenUpis(dete.JMBG, dete.ID.Hex(), zahtev.VrticID.Hex())
 	}
 
 	return zahtev, nil

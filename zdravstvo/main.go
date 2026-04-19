@@ -42,14 +42,15 @@ func main() {
 	// API routes group
 	api := r.Group("/api/v1")
 	{
-		// Placeholder routes - will be implemented in later tasks
+		// Integracija sa predškolskim servisom — mock razmene podataka
+		api.GET("/validacija/:jmbg", handleValidacija)
+		api.GET("/obavezni-pregled/:jmbg", handleObavezniPregled)
+		api.POST("/dogadjaji/upis-odobren", handleDogadjajUpisOdobren)
+
 		api.POST("/pregledi", func(c *gin.Context) {
 			c.JSON(http.StatusNotImplemented, gin.H{"message": "Not implemented yet"})
 		})
 		api.POST("/uputi", func(c *gin.Context) {
-			c.JSON(http.StatusNotImplemented, gin.H{"message": "Not implemented yet"})
-		})
-		api.GET("/validacija/:jmbg", func(c *gin.Context) {
 			c.JSON(http.StatusNotImplemented, gin.H{"message": "Not implemented yet"})
 		})
 		api.GET("/notifikacije/:jmbg", func(c *gin.Context) {

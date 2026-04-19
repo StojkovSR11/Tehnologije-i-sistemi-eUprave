@@ -10,6 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
+	zdravstvoclient "predskolske-ustanove/client"
 	"predskolske-ustanove/handler"
 	"predskolske-ustanove/repository"
 	"predskolske-ustanove/service"
@@ -55,7 +56,8 @@ func main() {
 	// Inicijalizacija service-ja
 	deteService := service.NewDeteService(deteRepo)
 	vrticService := service.NewVrticService(vrticRepo)
-	zahtevService := service.NewZahtevService(zahtevRepo, deteRepo, vrticRepo)
+	zdravstvoClient := zdravstvoclient.NewZdravstvoClient()
+	zahtevService := service.NewZahtevService(zahtevRepo, deteRepo, vrticRepo, zdravstvoClient)
 	grupaService := service.NewGrupaService(grupaRepo, deteRepo, zahtevRepo)
 
 	// Inicijalizacija handler-a
