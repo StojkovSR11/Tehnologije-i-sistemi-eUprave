@@ -59,6 +59,15 @@ class EvidencijaPrisustva <<predškolstvo>> {
   +napomena: string
 }
 
+class Obavestenje <<predškolstvo>> {
+  +id: ObjectId
+  +korisnikId: ObjectId
+  +deteId: string
+  +grupaId: string
+  +poruka: string
+  +createdAt: datetime
+}
+
 Korisnik "1" o-- "0..*" Dete
 
 Dete "1" o-- "0..*" ZahtevZaUpis
@@ -66,6 +75,9 @@ Vrtic "1" o-- "0..*" ZahtevZaUpis
 Vrtic "1" o-- "0..*" Grupa
 Dete "1" o-- "0..*" EvidencijaPrisustva
 Vrtic "1" o-- "0..*" EvidencijaPrisustva : evidencija za vrtic
+Korisnik "1" o-- "0..*" Obavestenje
+Dete "1" o-- "0..*" Obavestenje
+Grupa "1" o-- "0..*" Obavestenje
 
 Grupa "1" o-- "0..*" Dete
 

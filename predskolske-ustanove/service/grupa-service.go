@@ -10,22 +10,28 @@ import (
 )
 
 type GrupaService struct {
-	grupaRepo  *repository.GrupaRepository
-	deteRepo   *repository.DeteRepository
-	zahtevRepo *repository.ZahtevRepository
-	ctx        context.Context
+	grupaRepo          *repository.GrupaRepository
+	deteRepo           *repository.DeteRepository
+	zahtevRepo         *repository.ZahtevRepository
+	vrticRepo          *repository.VrticRepository
+	obavestenjeService *ObavestenjeService
+	ctx                context.Context
 }
 
 func NewGrupaService(
 	grupaRepo *repository.GrupaRepository,
 	deteRepo *repository.DeteRepository,
 	zahtevRepo *repository.ZahtevRepository,
+	vrticRepo *repository.VrticRepository,
+	obavestenjeService *ObavestenjeService,
 ) *GrupaService {
 	return &GrupaService{
-		grupaRepo:  grupaRepo,
-		deteRepo:   deteRepo,
-		zahtevRepo: zahtevRepo,
-		ctx:        context.Background(),
+		grupaRepo:          grupaRepo,
+		deteRepo:           deteRepo,
+		zahtevRepo:         zahtevRepo,
+		vrticRepo:          vrticRepo,
+		obavestenjeService: obavestenjeService,
+		ctx:                context.Background(),
 	}
 }
 
@@ -176,6 +182,24 @@ func (s *GrupaService) AddDeteToGrupa(deteID string, grupaID string) error {
 	_, err = s.deteRepo.Update(deteObjID, dete)
 	if err != nil {
 		return err
+	}
+
+	// 8. Obavestenje roditelju da je dete rasporedjeno u grupu
+	if s.obavestenjeService != nil {
+		vrticNaziv := dete.VrticID
+		if vrticObjID, err := primitive.ObjectIDFromHex(dete.VrticID); err == nil && s.vrticRepo != nil {
+			if vrtic, err := s.vrticRepo.GetByID(vrticObjID); err == nil && vrtic != nil && vrtic.Naziv != "" {
+				vrticNaziv = vrtic.Naziv
+			}
+		}
+		_ = s.obavestenjeService.KreirajObavestenjeZaDodeluGrupe(
+			dete.KorisnikID,
+			dete.ID.Hex(),
+			dete.Ime+" "+dete.Prezime,
+			grupa.ID.Hex(),
+			grupa.Naziv,
+			vrticNaziv,
+		)
 	}
 
 	return nil

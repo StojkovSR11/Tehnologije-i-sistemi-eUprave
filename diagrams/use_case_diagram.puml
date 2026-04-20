@@ -12,6 +12,8 @@ rectangle "Servis predškolske ustanove" as Predskolsko {
   usecase "Odobravanje zahteva" as UC_Odobri
   usecase "Odbijanje zahteva" as UC_Odbij
   usecase "Raspoređivanje deteta\nu grupu" as UC_Grupa
+  usecase "Slanje obaveštenja\nroditelju" as UC_Obavesti
+  usecase "Pregled mojih\nobaveštenja" as UC_MojaObav
   usecase "Evidencija dolaska/\npreuzimanja" as UC_Evidencija
   usecase "Pregled evidencije\nprisustva" as UC_PregledPrisustva
 }
@@ -23,6 +25,7 @@ rectangle "Servis zdravstvo (mock)" as Zdravstvo {
 
 Roditelj --> UC_MojaDeca
 Roditelj --> UC_Podnesi
+Roditelj --> UC_MojaObav
 
 Admin --> UC_Odobri
 Admin --> UC_Odbij
@@ -30,6 +33,7 @@ Admin --> UC_Grupa
 Admin --> UC_Evidencija
 Admin --> UC_PregledPrisustva
 
+UC_Grupa ..> UC_Obavesti : <<include>>
 UC_Odobri ..> UC_Knjizica : <<include>>
 UC_Odobri ..> UC_Pregled : <<include>>
 ZdrSrv --> UC_Knjizica

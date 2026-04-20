@@ -12,11 +12,11 @@ import (
 )
 
 type ZahtevService struct {
-	repo        *repository.ZahtevRepository
-	deteRepo    *repository.DeteRepository
-	vrticRepo   *repository.VrticRepository
-	zdravstvo   *client.ZdravstvoClient
-	ctx         context.Context
+	repo      *repository.ZahtevRepository
+	deteRepo  *repository.DeteRepository
+	vrticRepo *repository.VrticRepository
+	zdravstvo *client.ZdravstvoClient
+	ctx       context.Context
 }
 
 func NewZahtevService(zahtevRepo *repository.ZahtevRepository,
@@ -48,6 +48,9 @@ func (s *ZahtevService) CreateZahtev(zahtev *model.ZahtevZaUpis, korisnikID prim
 	if dete.KorisnikID != korisnikID {
 		return nil, errors.New("nije dozvoljeno podneti zahtev za tudje dete")
 	}
+	if dete.VrticID != "" {
+		return nil, errors.New("dete je vec upisano u vrtic")
+	}
 
 	// Provera da li vrtic postoji
 	if _, err := s.vrticRepo.GetByID(zahtev.VrticID); err != nil {
@@ -62,6 +65,14 @@ func (s *ZahtevService) CreateZahtev(zahtev *model.ZahtevZaUpis, korisnikID prim
 		return nil, errors.New("zahtev za ovo dete i vrtic vec postoji")
 	}
 
+	aktivanZahtev, err := s.repo.GetAktivanByDete(zahtev.DeteID)
+	if err != nil {
+		return nil, err
+	}
+	if aktivanZahtev != nil {
+		return nil, errors.New("za ovo dete vec postoji aktivan zahtev")
+	}
+
 	// Default vrijednosti
 	zahtev.Status = model.StatusNaCekanju
 	zahtev.DatumPodnosenja = time.Now()
@@ -72,7 +83,6 @@ func (s *ZahtevService) CreateZahtev(zahtev *model.ZahtevZaUpis, korisnikID prim
 	if err != nil {
 		return nil, err
 	}
-
 
 	zahtev.ID = result.InsertedID.(primitive.ObjectID)
 
@@ -115,7 +125,6 @@ func (s *ZahtevService) DeleteZahtev(id string) error {
 	_, err = s.repo.Delete(objectID)
 	return err
 }
-
 
 func (s *ZahtevService) OdobriZahtev(id string) (*model.ZahtevZaUpis, error) {
 
@@ -210,7 +219,6 @@ func (s *ZahtevService) OdobriZahtev(id string) (*model.ZahtevZaUpis, error) {
 
 	return zahtev, nil
 }
-
 
 func (s *ZahtevService) OdbijZahtev(id string, napomena string) (*model.ZahtevZaUpis, error) {
 

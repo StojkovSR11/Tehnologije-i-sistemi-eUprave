@@ -53,13 +53,15 @@ func main() {
 	zahtevRepo := repository.NewZahtevRepository(db)
 	grupaRepo := repository.NewGrupaRepository(db)
 	evidencijaRepo := repository.NewEvidencijaRepository(db)
+	obavestenjeRepo := repository.NewObavestenjeRepository(db)
 
 	// Inicijalizacija service-ja
 	deteService := service.NewDeteService(deteRepo)
 	vrticService := service.NewVrticService(vrticRepo)
 	zdravstvoClient := zdravstvoclient.NewZdravstvoClient()
 	zahtevService := service.NewZahtevService(zahtevRepo, deteRepo, vrticRepo, zdravstvoClient)
-	grupaService := service.NewGrupaService(grupaRepo, deteRepo, zahtevRepo)
+	obavestenjeService := service.NewObavestenjeService(obavestenjeRepo)
+	grupaService := service.NewGrupaService(grupaRepo, deteRepo, zahtevRepo, vrticRepo, obavestenjeService)
 	evidencijaService := service.NewEvidencijaService(evidencijaRepo, deteRepo)
 
 	// Inicijalizacija handler-a
@@ -68,6 +70,7 @@ func main() {
 	zahtevHandler := handler.NewZahtevHandler(zahtevService)
 	grupaHandler := handler.NewGrupaHandler(grupaService)
 	evidencijaHandler := handler.NewEvidencijaHandler(evidencijaService)
+	obavestenjeHandler := handler.NewObavestenjeHandler(obavestenjeService)
 
 	// Gin router
 	r := gin.Default()
@@ -127,6 +130,7 @@ func main() {
 		auth.GET("/moja-deca", deteHandler.MojaDeca)
 		auth.POST("/moje-dete", deteHandler.KreirajMojeDete)
 		auth.POST("/zahtev", zahtevHandler.KreirajZahtev)
+		auth.GET("/obavestenja/moja", obavestenjeHandler.MojaObavestenja)
 	}
 
 	log.Println("Predskolske ustanove service starting on port 8081")

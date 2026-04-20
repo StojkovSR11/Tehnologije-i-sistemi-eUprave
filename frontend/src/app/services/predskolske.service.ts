@@ -43,10 +43,11 @@ export interface Potvrda {
 
 export interface Obavestenje {
   id?: string;
-  jmbgRoditelja: string;
+  korisnikId: string;
+  deteId: string;
+  grupaId: string;
   poruka: string;
-  datum: string;
-  procitano?: boolean;
+  createdAt: string;
 }
 
 
@@ -115,13 +116,10 @@ export class PredskolskeService {
   }
 
   // Obaveštenja
-  getObavestenja(jmbgRoditelja: string): Observable<Obavestenje[]> {
-    return this.http.get<Obavestenje[]>(
-      `${this.API_URL}/obavestenja/${jmbgRoditelja}`,
-      {
-        headers: this.getHeaders(),
-      }
-    );
+  getMojaObavestenja(): Observable<Obavestenje[]> {
+    return this.http.get<Obavestenje[]>(`${this.API_URL}/obavestenja/moja`, {
+      headers: this.getHeaders(),
+    });
   }
 
   // Test

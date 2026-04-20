@@ -71,14 +71,31 @@ func (r *ZahtevRepository) GetByDeteAndVrtic(deteID, vrticID primitive.ObjectID)
 	return &z, nil
 }
 
+func (r *ZahtevRepository) GetAktivanByDete(deteID primitive.ObjectID) (*model.ZahtevZaUpis, error) {
+	var z model.ZahtevZaUpis
+	err := r.collection.FindOne(r.ctx, bson.M{
+		"dete_id": deteID,
+		"status": bson.M{
+			"$in": []string{model.StatusNaCekanju, model.StatusOdobren},
+		},
+	}).Decode(&z)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &z, nil
+}
+
 func (r *ZahtevRepository) Update(id primitive.ObjectID, zahtev *model.ZahtevZaUpis) (*mongo.UpdateResult, error) {
 	update := bson.M{
 		"$set": bson.M{
-			"dete_id":          zahtev.DeteID,
-			"vrtic_id":         zahtev.VrticID,
-			"status":           zahtev.Status,
-			"datumPodnosenja":  zahtev.DatumPodnosenja,
-			"napomena":         zahtev.Napomena,
+			"dete_id":         zahtev.DeteID,
+			"vrtic_id":        zahtev.VrticID,
+			"status":          zahtev.Status,
+			"datumPodnosenja": zahtev.DatumPodnosenja,
+			"napomena":        zahtev.Napomena,
 		},
 	}
 	return r.collection.UpdateByID(r.ctx, id, update)

@@ -7,6 +7,7 @@ import {
   ZahtevZaUpis,
   Dete,
   Vrtic,
+  Obavestenje,
 } from "../../services/predskolske.service";
 import { AuthService } from "../../services/auth.service";
 
@@ -190,6 +191,21 @@ import { AuthService } from "../../services/auth.service";
   </div>
 </div>
 
+<div class="card">
+  <h3>🔔 Moja obaveštenja</h3>
+
+  <div *ngIf="obavestenja.length > 0">
+    <div *ngFor="let o of obavestenja" class="vrtic-item">
+      <p><strong>Poruka:</strong> {{ o.poruka }}</p>
+      <p><strong>Vreme:</strong> {{ o.createdAt | date : "dd.MM.yyyy HH:mm:ss" }}</p>
+    </div>
+  </div>
+
+  <div *ngIf="obavestenja.length === 0">
+    <p>Trenutno nema obaveštenja.</p>
+  </div>
+</div>
+
 
       <div class="card mt-20" *ngIf="!authService.isLoggedIn()">
         <div class="alert alert-info">
@@ -352,6 +368,7 @@ export class PredskolskeComponent implements OnInit {
 
   deca: Dete[] = [];
   zahtevi: ZahtevZaUpis[] = [];
+  obavestenja: Obavestenje[] = [];
 
   zahtevStatus: { type: string; message: string } | null = null;
   vrticiStatus: { type: string; message: string } | null = null;
@@ -360,6 +377,7 @@ export class PredskolskeComponent implements OnInit {
   ngOnInit() {
     this.loadVrtici();
     this.loadMojaDeca();
+    this.loadMojaObavestenja();
   }
 
   podnesZahtev() {
@@ -494,6 +512,17 @@ loadMojiZahtevi() {
     },
     error: (err) => {
       console.error("Greška pri učitavanju zahteva", err);
+    },
+  });
+}
+
+loadMojaObavestenja() {
+  this.predskolskeService.getMojaObavestenja().subscribe({
+    next: (data) => {
+      this.obavestenja = data;
+    },
+    error: (err) => {
+      console.error("Greška pri učitavanju obaveštenja", err);
     },
   });
 }
