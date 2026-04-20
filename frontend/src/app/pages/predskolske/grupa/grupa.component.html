@@ -50,4 +50,48 @@
       </div>
     </div>
   </div>
+
+  <div class="card" *ngIf="izabraniVrticID">
+    <h3>Evidencija prisustva deteta</h3>
+    <div class="inline-form">
+      <select [(ngModel)]="prisustvoDeteID" name="prisustvoDeteID" (change)="ucitajEvidenciju()">
+        <option value="">Izaberite dete iz vrtića</option>
+        <option *ngFor="let d of decaIzabranogVrtica" [value]="d.id">
+          {{ d.ime }} {{ d.prezime }}
+        </option>
+      </select>
+
+      <select [(ngModel)]="prisustvoTip" name="prisustvoTip">
+        <option value="DOLAZAK">DOLAZAK</option>
+        <option value="PREUZIMANJE">PREUZIMANJE</option>
+      </select>
+
+      <input
+        type="text"
+        [(ngModel)]="prisustvoNapomena"
+        name="prisustvoNapomena"
+        placeholder="Napomena (opciono)"
+      />
+
+      <button class="btn btn-primary" type="button" (click)="dodajPrisustvoDogadjaj()">
+        Sačuvaj događaj
+      </button>
+      <button class="btn btn-secondary" type="button" (click)="ucitajEvidenciju()">
+        Osveži evidenciju
+      </button>
+    </div>
+
+    <div *ngIf="prisustvoDeteID && evidencija.length === 0" class="muted">
+      Nema zabeleženih događaja za izabrano dete.
+    </div>
+
+    <div *ngIf="evidencija.length > 0" class="evidencija-lista">
+      <div class="evidencija-item" *ngFor="let e of evidencija">
+        <strong>{{ nazivDeteta(e.deteId) }}</strong>
+        <strong>{{ e.tipDogadjaja }}</strong>
+        <span>{{ e.vreme | date : 'dd.MM.yyyy HH:mm:ss' }}</span>
+        <span *ngIf="e.napomena">{{ e.napomena }}</span>
+      </div>
+    </div>
+  </div>
 </div>

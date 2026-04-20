@@ -58,6 +58,15 @@ export interface Grupa {
   listaDece?: string[];
 }
 
+export interface PrisustvoDogadjaj {
+  id?: string;
+  deteId: string;
+  vrticId: string;
+  tipDogadjaja: "DOLAZAK" | "PREUZIMANJE";
+  vreme: string;
+  napomena?: string;
+}
+
 @Injectable({
   providedIn: "root",
 })
@@ -288,6 +297,26 @@ obrisiGrupu(id: string): Observable<any> {
   return this.http.delete(`${this.API_URL}/grupa/${id}`, {
     headers: this.getHeaders(),
   });
+}
+
+// Evidencija prisustva
+dodajPrisustvoDogadjaj(payload: {
+  deteID: string;
+  tipDogadjaja: "DOLAZAK" | "PREUZIMANJE";
+  napomena?: string;
+}): Observable<PrisustvoDogadjaj> {
+  return this.http.post<PrisustvoDogadjaj>(
+    `${this.API_URL}/prisustvo/dogadjaj`,
+    payload,
+    { headers: this.getHeaders() }
+  );
+}
+
+getPrisustvoZaDete(deteID: string): Observable<PrisustvoDogadjaj[]> {
+  return this.http.get<PrisustvoDogadjaj[]>(
+    `${this.API_URL}/prisustvo?deteID=${encodeURIComponent(deteID)}`,
+    { headers: this.getHeaders() }
+  );
 }
 
 }

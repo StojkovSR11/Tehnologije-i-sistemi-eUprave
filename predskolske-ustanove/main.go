@@ -52,6 +52,7 @@ func main() {
 	vrticRepo := repository.NewVrticRepository(db)
 	zahtevRepo := repository.NewZahtevRepository(db)
 	grupaRepo := repository.NewGrupaRepository(db)
+	evidencijaRepo := repository.NewEvidencijaRepository(db)
 
 	// Inicijalizacija service-ja
 	deteService := service.NewDeteService(deteRepo)
@@ -59,12 +60,14 @@ func main() {
 	zdravstvoClient := zdravstvoclient.NewZdravstvoClient()
 	zahtevService := service.NewZahtevService(zahtevRepo, deteRepo, vrticRepo, zdravstvoClient)
 	grupaService := service.NewGrupaService(grupaRepo, deteRepo, zahtevRepo)
+	evidencijaService := service.NewEvidencijaService(evidencijaRepo, deteRepo)
 
 	// Inicijalizacija handler-a
 	deteHandler := handler.NewDeteHandler(deteService)
 	vrticHandler := handler.NewVrticHandler(vrticService)
 	zahtevHandler := handler.NewZahtevHandler(zahtevService)
 	grupaHandler := handler.NewGrupaHandler(grupaService)
+	evidencijaHandler := handler.NewEvidencijaHandler(evidencijaService)
 
 	// Gin router
 	r := gin.Default()
@@ -112,6 +115,10 @@ func main() {
 		api.DELETE("/grupa/:id", grupaHandler.ObrisiGrupu)
 
 		api.POST("/grupa/dodaj-dete", grupaHandler.DodajDeteUGrupu)
+
+		// Evidencija prisustva
+		api.POST("/prisustvo/dogadjaj", evidencijaHandler.DodajDogadjaj)
+		api.GET("/prisustvo", evidencijaHandler.PregledEvidencije)
 	}
 
 	auth := api.Group("/")

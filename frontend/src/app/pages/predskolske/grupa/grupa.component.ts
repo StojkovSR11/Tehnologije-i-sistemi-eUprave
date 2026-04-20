@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
-import { PredskolskeService, Grupa, Dete, Vrtic, ZahtevZaUpis } from '../../../services/predskolske.service';
+import { PredskolskeService, Grupa, Dete, Vrtic, ZahtevZaUpis, PrisustvoDogadjaj } from '../../../services/predskolske.service';
 
 @Component({
   selector: 'app-grupe',
@@ -27,6 +27,10 @@ export class GrupeComponent implements OnInit {
   };
 
   selektovanaDecaPoGrupi: Record<string, string> = {};
+  prisustvoDeteID = '';
+  prisustvoTip: 'DOLAZAK' | 'PREUZIMANJE' = 'DOLAZAK';
+  prisustvoNapomena = '';
+  evidencija: PrisustvoDogadjaj[] = [];
   poruka = '';
   tipPoruke: 'success' | 'error' = 'success';
 
@@ -71,6 +75,10 @@ export class GrupeComponent implements OnInit {
     this.novaGrupa.vrticID = this.izabraniVrticID;
     this.ucitajGrupe();
     this.osveziRaspolozivuDecu();
+    this.evidencija = [];
+    if (this.prisustvoDeteID && !this.decaIzabranogVrtica.some((d) => d.id === this.prisustvoDeteID)) {
+      this.prisustvoDeteID = '';
+    }
   }
 
   ucitajGrupe(): void {
@@ -140,6 +148,43 @@ export class GrupeComponent implements OnInit {
     });
   }
 
+  dodajPrisustvoDogadjaj(): void {
+    if (!this.prisustvoDeteID) {
+      this.postaviPoruku('Izaberite dete za evidenciju prisustva.', 'error');
+      return;
+    }
+
+    this.predskolskeService
+      .dodajPrisustvoDogadjaj({
+        deteID: this.prisustvoDeteID,
+        tipDogadjaja: this.prisustvoTip,
+        napomena: this.prisustvoNapomena.trim(),
+      })
+      .subscribe({
+        next: () => {
+          this.postaviPoruku('Događaj prisustva je uspešno sačuvan.', 'success');
+          this.ucitajEvidenciju();
+        },
+        error: (err) =>
+          this.postaviPoruku(err?.error?.error || 'Greška pri čuvanju događaja prisustva.', 'error'),
+      });
+  }
+
+  ucitajEvidenciju(): void {
+    if (!this.prisustvoDeteID || !this.izabraniVrticID) {
+      this.evidencija = [];
+      return;
+    }
+
+    this.predskolskeService.getPrisustvoZaDete(this.prisustvoDeteID).subscribe({
+      next: (data) => {
+        this.evidencija = data.filter((e) => e.vrticId === this.izabraniVrticID);
+      },
+      error: (err) =>
+        this.postaviPoruku(err?.error?.error || 'Greška pri učitavanju evidencije prisustva.', 'error'),
+    });
+  }
+
   osveziRaspolozivuDecu(): void {
     if (!this.izabraniVrticID) {
       this.raspolozivaDeca = [];
@@ -160,6 +205,11 @@ export class GrupeComponent implements OnInit {
   nazivDeteta(deteID: string): string {
     const dete = this.svaDeca.find((d) => d.id === deteID);
     return dete ? `${dete.ime} ${dete.prezime}` : deteID;
+  }
+
+  get decaIzabranogVrtica(): Dete[] {
+    if (!this.izabraniVrticID) return [];
+    return this.svaDeca.filter((d) => d.vrticID === this.izabraniVrticID);
   }
 
   private postaviPoruku(tekst: string, tip: 'success' | 'error'): void {

@@ -1,101 +1,72 @@
 @startuml
-' Zdravstvo
-class Pacijent {
-  +JMBG: string
-  +Ime: string
-  +Prezime: string
-  +ZdravstvenaKnjizica: bool
+title Dijagram klasa
+left to right direction
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+class Korisnik <<auth servis>> {
+  +id: ObjectId
+  +jmbg: string
+  +email: string
+  +password: string
+  +ime: string
+  +prezime: string
+  +uloga: string
 }
 
-class Pregled {
-  +ID: int
-  +Datum: DateTime
-  +TipPregleda: string
-  +Status: string
+class Dete <<predškolstvo>> {
+  +id: ObjectId
+  +jmbg: string
+  +ime: string
+  +prezime: string
+  +datumRodj: datetime
+  +korisnikId: ObjectId
+  +vrticID: string
+  +grupaID: string
 }
 
-class Uput {
-  +ID: int
-  +PacijentID: int
-  +Specijalista: string
-  +PDFDokument: binary
+class Vrtic <<predškolstvo>> {
+  +id: ObjectId
+  +naziv: string
+  +kapacitet: int
+  +brojSlobodnihMesta: int
 }
 
-class Notifikacija {
-  +ID: int
-  +Tip: enum
-  +Sadrzaj: string
-  +Status: bool
+class ZahtevZaUpis <<predškolstvo>> {
+  +id: ObjectId
+  +deteId: ObjectId
+  +vrticId: ObjectId
+  +status: string
+  +datumPodnosenja: datetime
+  +napomena: string
 }
 
-' Predškolske ustanove
-class Dete {
-  +JMBG: string
-  +Ime: string
-  +Prezime: string
-  +DatumRodjenja: Date
+class Grupa <<predškolstvo>> {
+  +id: ObjectId
+  +naziv: string
+  +vrticID: string
+  +kapacitet: int
+  +listaDece: string[]
 }
 
-class ZahtevZaUpis {
-  +ID: int
-  +DeteID: int
-  +Status: string
-  +DatumPodnosenja: DateTime
-  +dodeliMesto()
+class EvidencijaPrisustva <<predškolstvo>> {
+  +id: ObjectId
+  +deteId: string
+  +vrticId: string
+  +tipDogadjaja: string
+  +vreme: datetime
+  +napomena: string
 }
 
-class Vrtic {
-  +ID: int
-  +Naziv: string
-  +Kapacitet: int
-  +BrojSlobodnihMesta: int
-}
+Korisnik "1" o-- "0..*" Dete
 
-class PotvrdaUpisa {
-  +ID: int
-  +ZahtevID: int
-  +PDFDokument: binary
-}
+Dete "1" o-- "0..*" ZahtevZaUpis
+Vrtic "1" o-- "0..*" ZahtevZaUpis
+Vrtic "1" o-- "0..*" Grupa
+Dete "1" o-- "0..*" EvidencijaPrisustva
+Vrtic "1" o-- "0..*" EvidencijaPrisustva : evidencija za vrtic
 
-class Obavestenje {
-  +ID: int
-  +Tip: enum
-  +Sadrzaj: string
-  +Status: bool
-}
-
-' SSO sistem
-class Korisnik {
-  +ID: int
-  +Ime: string
-  +Prezime: string
-  +Email: string
-  +Prijava()
-  +Odjava()
-}
-
-class SSO {
-  +autentifikacija()
-  +autorizacija()
-}
-
-' Veze Zdravstvo
-Pacijent "1" -- "0..*" Pregled
-Pacijent "1" -- "0..*" Uput
-Pacijent "1" -- "0..*" Notifikacija
-
-' Veze Predškolske ustanove
-Dete "1" -- "0..*" ZahtevZaUpis
-Vrtic "1" -- "0..*" ZahtevZaUpis
-ZahtevZaUpis "1" -- "1" PotvrdaUpisa
-ZahtevZaUpis "1" -- "0..*" Obavestenje
-
-' Veze između servisa
-Dete "1" -- "1" Pacijent : JMBG
-
-' Veze sa SSO
-Korisnik --> SSO
-Pacijent --> Korisnik
-Dete --> Korisnik
+Grupa "1" o-- "0..*" Dete
 
 @enduml
