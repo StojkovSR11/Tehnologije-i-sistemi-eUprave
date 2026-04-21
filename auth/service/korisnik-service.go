@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"regexp"
+	"strings"
 	"time"
 
 	"auth/model"
@@ -25,6 +27,11 @@ func NewKorisnikService(repo *repository.KorisnikRepository, secret string) *Kor
 
 // Registracija korisnika (dodavanje novog u bazu)
 func (s *KorisnikService) RegistrujKorisnika(k *model.Korisnik) (*model.Korisnik, error) {
+	k.JMBG = strings.TrimSpace(k.JMBG)
+	if !regexp.MustCompile(`^\d{13}$`).MatchString(k.JMBG) {
+		return nil, errors.New("unesite JMBG od 13 cifara")
+	}
+
 	// Hash sifre
 	hashed, err := bcrypt.GenerateFromPassword([]byte(k.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -53,16 +60,16 @@ func (s *KorisnikService) Login(jmbg, password string) (string, error) {
 
 	// Generisanje JWT tokena sa svim korisničkim podacima
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-	    "id":       korisnik.ID.Hex(),
-		"jmbg":     korisnik.JMBG,
-		"email":    korisnik.Email,
-		"ime":      korisnik.Ime,
-		"prezime":  korisnik.Prezime,
-		"name":     korisnik.Ime + " " + korisnik.Prezime,
-		"uloga":    korisnik.Uloga,
-		"role":     korisnik.Uloga,
-		"exp":      time.Now().Add(time.Hour * 2).Unix(),
-		"iat":      time.Now().Unix(),
+		"id":      korisnik.ID.Hex(),
+		"jmbg":    korisnik.JMBG,
+		"email":   korisnik.Email,
+		"ime":     korisnik.Ime,
+		"prezime": korisnik.Prezime,
+		"name":    korisnik.Ime + " " + korisnik.Prezime,
+		"uloga":   korisnik.Uloga,
+		"role":    korisnik.Uloga,
+		"exp":     time.Now().Add(time.Hour * 2).Unix(),
+		"iat":     time.Now().Unix(),
 	})
 
 	tokenString, err := token.SignedString(s.jwtSecret)

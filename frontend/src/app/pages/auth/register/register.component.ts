@@ -36,7 +36,7 @@ export class RegisterComponent {
         this.router.navigate(['/login']);
       },
       error: (err) => {
-        this.message = 'Greška pri registraciji.';
+        this.message = err?.error?.error || 'Greška pri registraciji.';
       }
     });
   }

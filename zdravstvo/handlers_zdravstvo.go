@@ -8,16 +8,23 @@ import (
 
 // ValidacijaKnjiziceResponse — razmena 1 (GET): provera knjižice deteta
 type ValidacijaKnjiziceResponse struct {
-	JMBG            string `json:"jmbg"`
-	KnjizicaVazeca  bool   `json:"knjizicaVazeca"`
-	Napomena        string `json:"napomena,omitempty"`
+	JMBG           string `json:"jmbg"`
+	KnjizicaVazeca bool   `json:"knjizicaVazeca"`
+	Napomena       string `json:"napomena,omitempty"`
 }
 
 // ObavezniPregledResponse — razmena 2 (GET): obavezan pregled pred upisom u vrtić
 type ObavezniPregledResponse struct {
-	JMBG                      string `json:"jmbg"`
-	ObavljenZaPredskolsko     bool   `json:"obavljenZaPredskolsko"`
-	Napomena                  string `json:"napomena,omitempty"`
+	JMBG                  string `json:"jmbg"`
+	ObavljenZaPredskolsko bool   `json:"obavljenZaPredskolsko"`
+	Napomena              string `json:"napomena,omitempty"`
+}
+
+// VakcinacijaResponse — razmena 3 (GET): provera kompletne vakcinacije za uzrast
+type VakcinacijaResponse struct {
+	JMBG                 string `json:"jmbg"`
+	VakcinacijaKompletna bool   `json:"vakcinacijaKompletna"`
+	Napomena             string `json:"napomena,omitempty"`
 }
 
 // DogadjajUpisOdobrenRequest — razmena 3 (POST): evidencija događaja nakon odobrenja (mock)
@@ -30,7 +37,7 @@ type DogadjajUpisOdobrenRequest struct {
 
 func handleValidacija(c *gin.Context) {
 	jmbg := c.Param("jmbg")
-	knj, _, napKnj, _ := mockZaJMBG(jmbg)
+	knj, _, _, napKnj, _, _ := mockZaJMBG(jmbg)
 	c.JSON(http.StatusOK, ValidacijaKnjiziceResponse{
 		JMBG:           jmbg,
 		KnjizicaVazeca: knj,
@@ -40,11 +47,21 @@ func handleValidacija(c *gin.Context) {
 
 func handleObavezniPregled(c *gin.Context) {
 	jmbg := c.Param("jmbg")
-	_, preg, _, napPr := mockZaJMBG(jmbg)
+	_, preg, _, _, napPr, _ := mockZaJMBG(jmbg)
 	c.JSON(http.StatusOK, ObavezniPregledResponse{
 		JMBG:                  jmbg,
 		ObavljenZaPredskolsko: preg,
 		Napomena:              napPr,
+	})
+}
+
+func handleVakcinacija(c *gin.Context) {
+	jmbg := c.Param("jmbg")
+	_, _, vakc, _, _, napVak := mockZaJMBG(jmbg)
+	c.JSON(http.StatusOK, VakcinacijaResponse{
+		JMBG:                 jmbg,
+		VakcinacijaKompletna: vakc,
+		Napomena:             napVak,
 	})
 }
 

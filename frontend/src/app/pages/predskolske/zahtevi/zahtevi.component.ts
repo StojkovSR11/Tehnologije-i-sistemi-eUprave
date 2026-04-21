@@ -82,8 +82,15 @@ export class ZahteviComponent implements OnInit {
 
   odobriZahtev(zahtevId: string) {
     this.predskolskeService.odobriZahtev(zahtevId).subscribe({
-      next: () => {
-        this.statusMessage = { type: "alert-success", message: "Zahtev je uspešno odobren." };
+      next: (res) => {
+        if (res?.status === "ODBIJEN") {
+          this.statusMessage = {
+            type: "alert-error",
+            message: `Zahtev nije odobren: ${res?.napomena || "zdravstveni uslovi nisu ispunjeni."}`,
+          };
+        } else {
+          this.statusMessage = { type: "alert-success", message: "Zahtev je uspešno odobren." };
+        }
         this.loadZahtevi();
         this.loadVrtici();
       },

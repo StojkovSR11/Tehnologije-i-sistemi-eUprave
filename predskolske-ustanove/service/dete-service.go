@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"regexp"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -26,6 +27,9 @@ func NewDeteService(repo *repository.DeteRepository) *DeteService {
 func (s *DeteService) CreateDete(dete *model.Dete, korisnikID primitive.ObjectID) (*model.Dete, error) {
 	if dete.JMBG == "" || dete.Ime == "" || dete.Prezime == "" {
 		return nil, errors.New("sva polja su obavezna")
+	}
+	if !regexp.MustCompile(`^\d{13}$`).MatchString(dete.JMBG) {
+		return nil, errors.New("unesite JMBG od 13 cifara")
 	}
 
 	if dete.DatumRodj.After(time.Now()) {
@@ -71,12 +75,9 @@ func (s *DeteService) UpdateDete(id string, dete *model.Dete) (*model.Dete, erro
 	return dete, nil
 }
 
-
 func (s *DeteService) GetDecuZaKorisnika(korisnikID primitive.ObjectID) ([]model.Dete, error) {
 	return s.repo.GetByKorisnikID(korisnikID)
 }
-
-
 
 // Brisanje deteta
 func (s *DeteService) DeleteDete(id string) error {

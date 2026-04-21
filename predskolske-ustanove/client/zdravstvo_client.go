@@ -45,6 +45,12 @@ type pregledResp struct {
 	Napomena              string `json:"napomena"`
 }
 
+type vakcinacijaResp struct {
+	JMBG                 string `json:"jmbg"`
+	VakcinacijaKompletna bool   `json:"vakcinacijaKompletna"`
+	Napomena             string `json:"napomena"`
+}
+
 type dogadjajReq struct {
 	JMBG    string `json:"jmbg"`
 	DeteID  string `json:"deteId"`
@@ -52,7 +58,7 @@ type dogadjajReq struct {
 	Poruka  string `json:"poruka"`
 }
 
-// ProveraZdravstveneSpremnosti: dva GET poziva (2 razmene). Vraća false ako dete nije spremno — zahtev treba odbiti.
+// ProveraZdravstveneSpremnosti: tri GET poziva (3 razmene). Vraća false ako dete nije spremno — zahtev treba odbiti.
 func (c *ZdravstvoClient) ProveraZdravstveneSpremnosti(jmbg string) (spreman bool, napomena string, err error) {
 	if c.skip {
 		return true, "", nil
@@ -82,6 +88,18 @@ func (c *ZdravstvoClient) ProveraZdravstveneSpremnosti(jmbg string) (spreman boo
 		msg := v2.Napomena
 		if msg == "" {
 			msg = "Nije ispunjen uslov obaveznog zdravstvenog pregleda za predškolsko"
+		}
+		return false, msg, nil
+	}
+
+	v3, err := c.getVakcinacija(jmbg)
+	if err != nil {
+		return false, "", fmt.Errorf("zdravstvo vakcinacija: %w", err)
+	}
+	if !v3.VakcinacijaKompletna {
+		msg := v3.Napomena
+		if msg == "" {
+			msg = "Vakcinacija nije kompletna za upis u predškolsku ustanovu"
 		}
 		return false, msg, nil
 	}
@@ -149,6 +167,27 @@ func (c *ZdravstvoClient) getObavezniPregled(jmbg string) (*pregledResp, error) 
 		return nil, fmt.Errorf("status %d: %s", resp.StatusCode, string(b))
 	}
 	var out pregledResp
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+func (c *ZdravstvoClient) getVakcinacija(jmbg string) (*vakcinacijaResp, error) {
+	req, err := http.NewRequest(http.MethodGet, c.baseURL+"/api/v1/vakcinacija/"+jmbg, nil)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("status %d: %s", resp.StatusCode, string(b))
+	}
+	var out vakcinacijaResp
 	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
 		return nil, err
 	}

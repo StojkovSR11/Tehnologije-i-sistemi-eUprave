@@ -4,7 +4,8 @@ import (
 	"auth/model"
 	"auth/service"
 	"net/http"
-
+	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -20,12 +21,12 @@ func NewKorisnikHandler(s *service.KorisnikService) *KorisnikHandler {
 // Registracija korisnika
 func (h *KorisnikHandler) RegistrujKorisnika(c *gin.Context) {
 	var body struct {
-    	JMBG     string `json:"jmbg"`
-    	Email    string `json:"email"`
-    	Ime      string `json:"ime"`
-    	Prezime  string `json:"prezime"`
-    	Password string `json:"password"`
-    }
+		JMBG     string `json:"jmbg"`
+		Email    string `json:"email"`
+		Ime      string `json:"ime"`
+		Prezime  string `json:"prezime"`
+		Password string `json:"password"`
+	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "neispravni podaci"})
 		return
@@ -42,24 +43,24 @@ func (h *KorisnikHandler) RegistrujKorisnika(c *gin.Context) {
 	}*/
 
 	korisnik := model.Korisnik{
-    	JMBG:     body.JMBG,
-    	Email:    body.Email,
-    	Password: body.Password, // hash-uj kasnije u servisu
-    	Ime:      body.Ime,
-    	Prezime:  body.Prezime,
-    	//Uloga:    "citizen",
-    }
+		JMBG:     body.JMBG,
+		Email:    body.Email,
+		Password: body.Password, // hash-uj kasnije u servisu
+		Ime:      body.Ime,
+		Prezime:  body.Prezime,
+		//Uloga:    "citizen",
+	}
 
-// Ako je JMBG predefinisanog admina, postavi ulogu ADMIN
-if body.JMBG == "0000000000000" {
-    korisnik.Uloga = "ADMIN"
-} else {
-    korisnik.Uloga = "citizen"
-}
+	// Ako je JMBG predefinisanog admina, postavi ulogu ADMIN
+	if body.JMBG == "0000000000000" {
+		korisnik.Uloga = "ADMIN"
+	} else {
+		korisnik.Uloga = "citizen"
+	}
 
 	novi, err := h.service.RegistrujKorisnika(&korisnik)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "greska pri registraciji"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -74,6 +75,11 @@ func (h *KorisnikHandler) Login(c *gin.Context) {
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "neispravni podaci"})
+		return
+	}
+	body.JMBG = strings.TrimSpace(body.JMBG)
+	if !regexp.MustCompile(`^\d{13}$`).MatchString(body.JMBG) {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "unesite JMBG od 13 cifara"})
 		return
 	}
 

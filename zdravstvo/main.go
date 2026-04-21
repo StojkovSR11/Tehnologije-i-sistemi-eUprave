@@ -45,6 +45,7 @@ func main() {
 		// Integracija sa predškolskim servisom — mock razmene podataka
 		api.GET("/validacija/:jmbg", handleValidacija)
 		api.GET("/obavezni-pregled/:jmbg", handleObavezniPregled)
+		api.GET("/vakcinacija/:jmbg", handleVakcinacija)
 		api.POST("/dogadjaji/upis-odobren", handleDogadjajUpisOdobren)
 
 		api.POST("/pregledi", func(c *gin.Context) {
