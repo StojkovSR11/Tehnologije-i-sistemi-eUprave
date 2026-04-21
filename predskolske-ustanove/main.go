@@ -56,8 +56,8 @@ func main() {
 	obavestenjeRepo := repository.NewObavestenjeRepository(db)
 
 	// Inicijalizacija service-ja
-	deteService := service.NewDeteService(deteRepo)
-	vrticService := service.NewVrticService(vrticRepo)
+	deteService := service.NewDeteService(deteRepo, vrticRepo, zahtevRepo, grupaRepo, obavestenjeRepo, evidencijaRepo)
+	vrticService := service.NewVrticService(vrticRepo, deteRepo, zahtevRepo, grupaRepo)
 	zdravstvoClient := zdravstvoclient.NewZdravstvoClient()
 	zahtevService := service.NewZahtevService(zahtevRepo, deteRepo, vrticRepo, zdravstvoClient)
 	obavestenjeService := service.NewObavestenjeService(obavestenjeRepo)
@@ -92,7 +92,6 @@ func main() {
 		api.GET("/dete/:id", deteHandler.DetePoID)
 		api.GET("/dete", deteHandler.SvaDeca)
 		api.PUT("/dete/:id", deteHandler.AzurirajDete)
-		api.DELETE("/dete/:id", deteHandler.ObrisiDete)
 
 		// Vrtic
 		api.POST("/vrtic", vrticHandler.KreirajVrtic)
@@ -129,6 +128,7 @@ func main() {
 	{
 		auth.GET("/moja-deca", deteHandler.MojaDeca)
 		auth.POST("/moje-dete", deteHandler.KreirajMojeDete)
+		auth.DELETE("/dete/:id", deteHandler.ObrisiDete)
 		auth.POST("/zahtev", zahtevHandler.KreirajZahtev)
 		auth.GET("/obavestenja/moja", obavestenjeHandler.MojaObavestenja)
 		auth.GET("/prisustvo/moje-dete/:deteID", evidencijaHandler.PregledEvidencijeMogDeteta)

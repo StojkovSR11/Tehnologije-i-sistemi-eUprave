@@ -7,19 +7,38 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+
 	"predskolske-ustanove/model"
 	"predskolske-ustanove/repository"
 )
 
 type DeteService struct {
-	repo *repository.DeteRepository
-	ctx  context.Context
+	repo            *repository.DeteRepository
+	vrticRepo       *repository.VrticRepository
+	zahtevRepo      *repository.ZahtevRepository
+	grupaRepo       *repository.GrupaRepository
+	obavestenjeRepo *repository.ObavestenjeRepository
+	evidencijaRepo  *repository.EvidencijaRepository
+	ctx             context.Context
 }
 
-func NewDeteService(repo *repository.DeteRepository) *DeteService {
+func NewDeteService(
+	repo *repository.DeteRepository,
+	vrticRepo *repository.VrticRepository,
+	zahtevRepo *repository.ZahtevRepository,
+	grupaRepo *repository.GrupaRepository,
+	obavestenjeRepo *repository.ObavestenjeRepository,
+	evidencijaRepo *repository.EvidencijaRepository,
+) *DeteService {
 	return &DeteService{
-		repo: repo,
-		ctx:  context.Background(),
+		repo:            repo,
+		vrticRepo:       vrticRepo,
+		zahtevRepo:      zahtevRepo,
+		grupaRepo:       grupaRepo,
+		obavestenjeRepo: obavestenjeRepo,
+		evidencijaRepo:  evidencijaRepo,
+		ctx:             context.Background(),
 	}
 }
 
@@ -79,12 +98,66 @@ func (s *DeteService) GetDecuZaKorisnika(korisnikID primitive.ObjectID) ([]model
 	return s.repo.GetByKorisnikID(korisnikID)
 }
 
-// Brisanje deteta
+// Brisanje deteta: uklanjanje iz grupe, vraćanje slobodnog mesta u vrtiću, brisanje zahteva/obaveštenja/evidencije.
 func (s *DeteService) DeleteDete(id string) error {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
+	dete, err := s.repo.GetByID(objectID)
+	if err != nil {
+		if errors.Is(err, mongo.ErrNoDocuments) {
+			return errors.New("dete ne postoji")
+		}
+		return err
+	}
+	deteHex := objectID.Hex()
+
+	if dete.GrupaID != "" {
+		grupaObjID, err := primitive.ObjectIDFromHex(dete.GrupaID)
+		if err == nil {
+			grupa, err := s.grupaRepo.GetByID(grupaObjID)
+			if err == nil && grupa != nil {
+				nova := make([]string, 0, len(grupa.ListaDece))
+				for _, x := range grupa.ListaDece {
+					if x != deteHex {
+						nova = append(nova, x)
+					}
+				}
+				grupa.ListaDece = nova
+				if _, err := s.grupaRepo.Update(grupaObjID, grupa); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	if dete.VrticID != "" {
+		vrticOID, err := primitive.ObjectIDFromHex(dete.VrticID)
+		if err == nil {
+			vrtic, err := s.vrticRepo.GetByID(vrticOID)
+			if err == nil && vrtic != nil {
+				vrtic.BrojSlobodnihMesta++
+				if vrtic.BrojSlobodnihMesta > vrtic.Kapacitet {
+					vrtic.BrojSlobodnihMesta = vrtic.Kapacitet
+				}
+				if _, err := s.vrticRepo.Update(vrticOID, vrtic); err != nil {
+					return err
+				}
+			}
+		}
+	}
+
+	if _, err := s.zahtevRepo.DeleteByDeteID(objectID); err != nil {
+		return err
+	}
+	if _, err := s.obavestenjeRepo.DeleteByDeteID(deteHex); err != nil {
+		return err
+	}
+	if _, err := s.evidencijaRepo.DeleteByDeteID(deteHex); err != nil {
+		return err
+	}
+
 	_, err = s.repo.Delete(objectID)
 	return err
 }

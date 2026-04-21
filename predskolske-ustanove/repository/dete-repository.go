@@ -66,18 +66,17 @@ func (r *DeteRepository) GetByID(id primitive.ObjectID) (*model.Dete, error) {
 func (r *DeteRepository) Update(id primitive.ObjectID, dete *model.Dete) (*mongo.UpdateResult, error) {
 	update := bson.M{
 		"$set": bson.M{
-			"jmbg":       dete.JMBG,
-			"ime":        dete.Ime,
-			"prezime":    dete.Prezime,
-			"datumRodj":  dete.DatumRodj,
-			"vrticID":    dete.VrticID,
-			"grupaID":    dete.GrupaID,
+			"jmbg":        dete.JMBG,
+			"ime":         dete.Ime,
+			"prezime":     dete.Prezime,
+			"datumRodj":   dete.DatumRodj,
+			"vrticID":     dete.VrticID,
+			"grupaID":     dete.GrupaID,
 			"korisnik_id": dete.KorisnikID,
 		},
 	}
 	return r.collection.UpdateByID(r.ctx, id, update)
 }
-
 
 func (r *DeteRepository) GetByKorisnikID(korisnikID primitive.ObjectID) ([]model.Dete, error) {
 	filter := bson.M{"korisnik_id": korisnikID}
@@ -101,8 +100,14 @@ func (r *DeteRepository) GetByKorisnikID(korisnikID primitive.ObjectID) ([]model
 	return deca, nil
 }
 
-
-
 func (r *DeteRepository) Delete(id primitive.ObjectID) (*mongo.DeleteResult, error) {
 	return r.collection.DeleteOne(r.ctx, bson.M{"_id": id})
+}
+
+// CountByVrticID broji decu upisanu u dati vrtić (vrticID je hex string ObjectID-a vrtića).
+func (r *DeteRepository) CountByVrticID(vrticIDHex string) (int64, error) {
+	if vrticIDHex == "" {
+		return 0, nil
+	}
+	return r.collection.CountDocuments(r.ctx, bson.M{"vrticID": vrticIDHex})
 }

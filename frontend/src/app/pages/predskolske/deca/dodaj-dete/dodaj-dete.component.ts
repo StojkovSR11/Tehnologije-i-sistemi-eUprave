@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { PredskolskeService, Dete } from '../../../../services/predskolske.service';
 import { AuthService } from '../../../../services/auth.service';  // <--- dodato
+import { apiErrorMessage } from '../../../../utils/api-error-message';
 
 @Component({
   selector: 'app-dodaj-dete',
@@ -55,7 +56,10 @@ export class DodajDeteComponent {
     },
     error: (err) => {
       console.log("GRESKA:", err);
-      this.status = { type: 'alert-error', message: '❌ Greška pri dodavanju deteta' };
+      this.status = {
+        type: 'alert-error',
+        message: `❌ ${apiErrorMessage(err, 'Greška pri dodavanju deteta.')}`,
+      };
     }
   });
 }

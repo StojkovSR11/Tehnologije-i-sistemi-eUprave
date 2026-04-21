@@ -11,6 +11,7 @@ import {
   PrisustvoDogadjaj,
 } from "../../services/predskolske.service";
 import { AuthService } from "../../services/auth.service";
+import { apiErrorMessage } from "../../utils/api-error-message";
 
 @Component({
   selector: "app-predskolske",
@@ -150,6 +151,10 @@ import { AuthService } from "../../services/auth.service";
 
 <div class="card">
   <h3>👶 Moja deca</h3>
+
+  <div *ngIf="decaStatus" [ngClass]="decaStatus.type" class="alert">
+    {{ decaStatus.message }}
+  </div>
 
   <div *ngIf="deca.length > 0">
     <div *ngFor="let d of deca" class="vrtic-item">
@@ -395,6 +400,7 @@ export class PredskolskeComponent implements OnInit {
 
   zahtevStatus: { type: string; message: string } | null = null;
   vrticiStatus: { type: string; message: string } | null = null;
+  decaStatus: { type: string; message: string } | null = null;
   mojePrisustvoStatus: { type: string; message: string } | null = null;
 
   ngOnInit() {
@@ -458,7 +464,7 @@ export class PredskolskeComponent implements OnInit {
       error: (error) => {
         this.vrticiStatus = {
           type: "alert-error",
-          message: `❌ Greška pri učitavanju vrtića: ${error.message}`,
+          message: `❌ ${apiErrorMessage(error, "Greška pri učitavanju vrtića.")}`,
         };
         // Set default vrtici for demo
         this.vrtici = [
@@ -491,10 +497,15 @@ loadMojaDeca() {
   this.predskolskeService.getMojaDeca().subscribe({
     next: (data) => {
       this.deca = data;
+      this.decaStatus = null;
       this.loadMojiZahtevi();
     },
     error: (err) => {
       console.error("Greška pri učitavanju dece", err);
+      this.decaStatus = {
+        type: "alert-error",
+        message: apiErrorMessage(err, "Greška pri učitavanju dece."),
+      };
     },
   });
 }
@@ -502,9 +513,19 @@ loadMojaDeca() {
 obrisiDete(deteId: string) {
   this.predskolskeService.obrisiDete(deteId).subscribe({
     next: () => {
-      this.deca = this.deca.filter(d => d.id !== deteId);
+      this.deca = this.deca.filter((d) => d.id !== deteId);
+      this.decaStatus = {
+        type: "alert-success",
+        message: "Dete je obrisano.",
+      };
     },
-    error: (err) => console.error("Greška pri brisanju deteta", err),
+    error: (err) => {
+      console.error("Greška pri brisanju deteta", err);
+      this.decaStatus = {
+        type: "alert-error",
+        message: apiErrorMessage(err, "Greška pri brisanju deteta."),
+      };
+    },
   });
 }
 
@@ -555,7 +576,7 @@ ucitajMojePrisustvo() {
       this.mojaEvidencija = [];
       this.mojePrisustvoStatus = {
         type: "alert-error",
-        message: `Greška pri učitavanju evidencije: ${err?.error?.error || err.message}`,
+        message: `Greška pri učitavanju evidencije: ${apiErrorMessage(err, "Nepoznata greška.")}`,
       };
     },
   });

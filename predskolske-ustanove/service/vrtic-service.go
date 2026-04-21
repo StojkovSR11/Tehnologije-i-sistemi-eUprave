@@ -10,14 +10,25 @@ import (
 )
 
 type VrticService struct {
-	repo *repository.VrticRepository
-	ctx  context.Context
+	repo       *repository.VrticRepository
+	deteRepo   *repository.DeteRepository
+	zahtevRepo *repository.ZahtevRepository
+	grupaRepo  *repository.GrupaRepository
+	ctx        context.Context
 }
 
-func NewVrticService(repo *repository.VrticRepository) *VrticService {
+func NewVrticService(
+	repo *repository.VrticRepository,
+	deteRepo *repository.DeteRepository,
+	zahtevRepo *repository.ZahtevRepository,
+	grupaRepo *repository.GrupaRepository,
+) *VrticService {
 	return &VrticService{
-		repo: repo,
-		ctx:  context.Background(),
+		repo:       repo,
+		deteRepo:   deteRepo,
+		zahtevRepo: zahtevRepo,
+		grupaRepo:  grupaRepo,
+		ctx:        context.Background(),
 	}
 }
 
@@ -39,6 +50,7 @@ func (s *VrticService) CreateVrtic(vrtic *model.Vrtic) (*model.Vrtic, error) {
 
 	return vrtic, nil
 }
+
 // Preuzimanje svih vrtića
 func (s *VrticService) GetAllVrtici() ([]model.Vrtic, error) {
 	return s.repo.GetAll()
@@ -70,12 +82,39 @@ func (s *VrticService) UpdateVrtic(id string, vrtic *model.Vrtic) (*model.Vrtic,
 	return vrtic, nil
 }
 
-// Brisanje vrtića
+// Brisanje vrtića — nije dozvoljeno ako postoje povezani podaci (deca, zahtevi, grupe).
 func (s *VrticService) DeleteVrtic(id string) error {
 	objectID, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		return err
 	}
+
+	idHex := objectID.Hex()
+
+	nDeca, err := s.deteRepo.CountByVrticID(idHex)
+	if err != nil {
+		return err
+	}
+	if nDeca > 0 {
+		return errors.New("nije moguce obrisati vrtic: postoji dete upisano u ovaj vrtic")
+	}
+
+	nZahteva, err := s.zahtevRepo.CountByVrticID(objectID)
+	if err != nil {
+		return err
+	}
+	if nZahteva > 0 {
+		return errors.New("nije moguce obrisati vrtic: postoje zahtevi vezani za ovaj vrtic")
+	}
+
+	nGrupa, err := s.grupaRepo.CountByVrticID(idHex)
+	if err != nil {
+		return err
+	}
+	if nGrupa > 0 {
+		return errors.New("nije moguce obrisati vrtic: postoje grupe za ovaj vrtic")
+	}
+
 	_, err = s.repo.Delete(objectID)
 	return err
 }

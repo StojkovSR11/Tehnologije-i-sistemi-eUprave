@@ -19,23 +19,22 @@ func NewVrticHandler(s *service.VrticService) *VrticHandler {
 
 // Kreiranje vrtica
 func (h *VrticHandler) KreirajVrtic(c *gin.Context) {
-    var vrtic model.Vrtic
-    if err := c.ShouldBindJSON(&vrtic); err != nil {
-        log.Println("JSON bind error:", err)
-        c.JSON(http.StatusBadRequest, gin.H{"error": "neispravni podaci"})
-        return
-    }
-    log.Println("Vrtic primljen:", vrtic)
+	var vrtic model.Vrtic
+	if err := c.ShouldBindJSON(&vrtic); err != nil {
+		log.Println("JSON bind error:", err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "neispravni podaci"})
+		return
+	}
+	log.Println("Vrtic primljen:", vrtic)
 
-    novoVrtic, err := h.service.CreateVrtic(&vrtic)
-    if err != nil {
-        log.Println("Service error:", err)
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "greska pri kreiranju vrtica"})
-        return
-    }
-    c.JSON(http.StatusCreated, novoVrtic)
+	novoVrtic, err := h.service.CreateVrtic(&vrtic)
+	if err != nil {
+		log.Println("Service error:", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "greska pri kreiranju vrtica"})
+		return
+	}
+	c.JSON(http.StatusCreated, novoVrtic)
 }
-
 
 // Vrati sve vrtice
 func (h *VrticHandler) SviVrtici(c *gin.Context) {
@@ -79,7 +78,7 @@ func (h *VrticHandler) AzurirajVrtic(c *gin.Context) {
 func (h *VrticHandler) ObrisiVrtic(c *gin.Context) {
 	id := c.Param("id")
 	if err := h.service.DeleteVrtic(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "vrtic obrisan"})

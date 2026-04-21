@@ -130,11 +130,32 @@ func (h *DeteHandler) KreirajMojeDete(c *gin.Context) {
 
 
 
-// Brisanje deteta
+// Brisanje deteta — samo ulogovani roditelj može obrisati sopstveno dete.
 func (h *DeteHandler) ObrisiDete(c *gin.Context) {
+	korisnikIDVal, exists := c.Get("korisnikID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "korisnik nije ulogovan"})
+		return
+	}
+	korisnikID, ok := korisnikIDVal.(primitive.ObjectID)
+	if !ok {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "neispravan korisnikID"})
+		return
+	}
+
 	id := c.Param("id")
+	dete, err := h.service.GetDeteByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "dete ne postoji"})
+		return
+	}
+	if dete.KorisnikID != korisnikID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "nije dozvoljeno brisati tudje dete"})
+		return
+	}
+
 	if err := h.service.DeleteDete(id); err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "dete obrisano"})

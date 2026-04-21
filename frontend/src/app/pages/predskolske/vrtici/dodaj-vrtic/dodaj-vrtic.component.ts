@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { PredskolskeService, Vrtic } from '../../../../services/predskolske.service';
-import { HttpErrorResponse } from '@angular/common/http';
+import { apiErrorMessage } from '../../../../utils/api-error-message';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -36,22 +36,29 @@ export class DodajVrticComponent implements OnInit {
         this.status = { type: 'alert-success', message: '✅ Vrtić ažuriran!' };
         setTimeout(() => this.router.navigate(['/predskolske/vrtici']), 1000);
       },
-      error: () => {
-        this.status = { type: 'alert-error', message: '❌ Greška pri ažuriranju' };
+      error: (err) => {
+        this.status = {
+          type: 'alert-error',
+          message: `❌ ${apiErrorMessage(err, 'Greška pri ažuriranju vrtića.')}`,
+        };
       }
     });
 
   } else {
     // CREATE
     this.status = { type: 'alert-info', message: 'Dodavanje vrtića...' };
+    this.noviVrtic.brojSlobodnihMesta = this.noviVrtic.kapacitet;
 
     this.predskolskeService.dodajVrtic(this.noviVrtic).subscribe({
       next: () => {
         this.status = { type: 'alert-success', message: '✅ Vrtić dodat!' };
         setTimeout(() => this.router.navigate(['/predskolske/vrtici']), 1000);
       },
-      error: () => {
-        this.status = { type: 'alert-error', message: '❌ Greška pri dodavanju' };
+      error: (err) => {
+        this.status = {
+          type: 'alert-error',
+          message: `❌ ${apiErrorMessage(err, 'Greška pri dodavanju vrtića.')}`,
+        };
       }
     });
   }
@@ -73,8 +80,11 @@ export class DodajVrticComponent implements OnInit {
           this.noviVrtic = vrtic;
         }
       },
-      error: () => {
-        this.status = { type: 'alert-error', message: '❌ Greška pri učitavanju vrtića' };
+      error: (err) => {
+        this.status = {
+          type: 'alert-error',
+          message: `❌ ${apiErrorMessage(err, 'Greška pri učitavanju vrtića.')}`,
+        };
       }
     });
   }

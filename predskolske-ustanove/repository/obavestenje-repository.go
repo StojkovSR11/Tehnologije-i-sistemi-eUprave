@@ -47,3 +47,8 @@ func (r *ObavestenjeRepository) GetByKorisnikID(korisnikID primitive.ObjectID) (
 
 	return rezultat, nil
 }
+
+// DeleteByDeteID briše obaveštenja vezana za dete (hex ID).
+func (r *ObavestenjeRepository) DeleteByDeteID(deteIDHex string) (*mongo.DeleteResult, error) {
+	return r.collection.DeleteMany(r.ctx, bson.M{"deteId": deteIDHex})
+}

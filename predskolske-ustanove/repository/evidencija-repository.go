@@ -63,3 +63,8 @@ func (r *EvidencijaRepository) GetByFilter(deteID string, od, do *time.Time) ([]
 
 	return rezultat, nil
 }
+
+// DeleteByDeteID briše evidenciju prisustva za dete.
+func (r *EvidencijaRepository) DeleteByDeteID(deteIDHex string) (*mongo.DeleteResult, error) {
+	return r.collection.DeleteMany(r.ctx, bson.M{"deteId": deteIDHex})
+}

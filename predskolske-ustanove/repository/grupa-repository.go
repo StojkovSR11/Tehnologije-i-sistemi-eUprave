@@ -31,8 +31,8 @@ func (r *GrupaRepository) GetAll(vrticID string) ([]model.Grupa, error) {
 	}*/
 
 	if err != nil {
-    	return []model.Grupa{}, err
-    }
+		return []model.Grupa{}, err
+	}
 
 	defer cursor.Close(r.ctx)
 
@@ -82,4 +82,12 @@ func (r *GrupaRepository) Update(id primitive.ObjectID, grupa *model.Grupa) (*mo
 // Obriši grupu
 func (r *GrupaRepository) Delete(id primitive.ObjectID) (*mongo.DeleteResult, error) {
 	return r.collection.DeleteOne(r.ctx, bson.M{"_id": id})
+}
+
+// CountByVrticID broji grupe za dati vrtić.
+func (r *GrupaRepository) CountByVrticID(vrticID string) (int64, error) {
+	if vrticID == "" {
+		return 0, nil
+	}
+	return r.collection.CountDocuments(r.ctx, bson.M{"vrticID": vrticID})
 }

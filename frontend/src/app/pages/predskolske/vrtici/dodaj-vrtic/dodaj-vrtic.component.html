@@ -29,13 +29,22 @@
                required>
       </label>
 
-      <label>
+      <label *ngIf="vrticId; else autoSlobodnaMesta">
         Broj slobodnih mesta:
         <input type="number"
                [(ngModel)]="noviVrtic.brojSlobodnihMesta"
                name="brojSlobodnihMesta"
                required>
       </label>
+      <ng-template #autoSlobodnaMesta>
+        <label>
+          Broj slobodnih mesta:
+          <input type="number"
+                 [value]="noviVrtic.kapacitet"
+                 name="brojSlobodnihMestaAuto"
+                 disabled>
+        </label>
+      </ng-template>
 
       <div class="card-actions">
         <button type="submit" class="btn btn-success">

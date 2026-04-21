@@ -88,6 +88,11 @@ func (r *ZahtevRepository) GetAktivanByDete(deteID primitive.ObjectID) (*model.Z
 	return &z, nil
 }
 
+// CountByVrticID broji sve zahteve vezane za dati vrtić.
+func (r *ZahtevRepository) CountByVrticID(vrticID primitive.ObjectID) (int64, error) {
+	return r.collection.CountDocuments(r.ctx, bson.M{"vrtic_id": vrticID})
+}
+
 func (r *ZahtevRepository) Update(id primitive.ObjectID, zahtev *model.ZahtevZaUpis) (*mongo.UpdateResult, error) {
 	update := bson.M{
 		"$set": bson.M{
@@ -99,6 +104,11 @@ func (r *ZahtevRepository) Update(id primitive.ObjectID, zahtev *model.ZahtevZaU
 		},
 	}
 	return r.collection.UpdateByID(r.ctx, id, update)
+}
+
+// DeleteByDeteID briše sve zahteve za dato dete (npr. pri brisanju deteta).
+func (r *ZahtevRepository) DeleteByDeteID(deteID primitive.ObjectID) (*mongo.DeleteResult, error) {
+	return r.collection.DeleteMany(r.ctx, bson.M{"dete_id": deteID})
 }
 
 func (r *ZahtevRepository) Delete(id primitive.ObjectID) (*mongo.DeleteResult, error) {

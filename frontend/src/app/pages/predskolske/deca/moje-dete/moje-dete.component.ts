@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { PredskolskeService, Dete } from '../../../../services/predskolske.service';
 import { AuthService } from '../../../../services/auth.service';
+import { apiErrorMessage } from '../../../../utils/api-error-message';
 
 @Component({
   selector: 'app-moje-dete',
@@ -46,7 +47,7 @@ export class MojeDeteComponent implements OnInit {
     },
     error: (err) => {
       console.error(err);
-      this.statusMessage = 'Greška pri učitavanju podataka o deci.';
+      this.statusMessage = apiErrorMessage(err, 'Greška pri učitavanju podataka o deci.');
     }
   });
 }
@@ -68,7 +69,7 @@ export class MojeDeteComponent implements OnInit {
         },
         error: (err) => {
           console.error(err);
-          this.statusMessage = 'Greška pri brisanju deteta.';
+          this.statusMessage = apiErrorMessage(err, 'Greška pri brisanju deteta.');
         }
       });
     }

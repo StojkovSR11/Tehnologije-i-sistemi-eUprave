@@ -4,6 +4,7 @@ import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
 import { RoleService } from '../../../services/role.service';
+import { apiErrorMessage } from '../../../utils/api-error-message';
 
 @Component({
   selector: 'app-vrtici',
@@ -40,7 +41,8 @@ export class VrticiComponent implements OnInit {
       // dodaj privremeno brojUpisanihDece = 0
       this.vrtici = data.map(v => ({ ...v, brojUpisanihDece: 0 }));
     },
-    error: (err) => this.prikaziStatus('Greska pri ucitavanju vrtica', 'alert-error')
+    error: (err) =>
+      this.prikaziStatus(apiErrorMessage(err, 'Greška pri učitavanju vrtića.'), 'alert-error')
   });
 }
 
@@ -62,7 +64,8 @@ export class VrticiComponent implements OnInit {
           this.vrtici = this.vrtici.filter(v => v.id !== vrtic.id);
           this.prikaziStatus('✅ Vrtić obrisan.', 'alert-success');
         },
-        error: (err: any) => this.prikaziStatus('❌ Greska pri brisanju vrtica', 'alert-error')
+        error: (err) =>
+          this.prikaziStatus(apiErrorMessage(err, 'Greška pri brisanju vrtića.'), 'alert-error')
       });
     }
   }
