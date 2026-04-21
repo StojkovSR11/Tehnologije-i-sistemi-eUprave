@@ -317,4 +317,11 @@ getPrisustvoZaDete(deteID: string): Observable<PrisustvoDogadjaj[]> {
   );
 }
 
+getPrisustvoMogDeteta(deteID: string): Observable<PrisustvoDogadjaj[]> {
+  return this.http.get<PrisustvoDogadjaj[]>(
+    `${this.API_URL}/prisustvo/moje-dete/${encodeURIComponent(deteID)}`,
+    { headers: this.getHeaders() }
+  );
+}
+
 }

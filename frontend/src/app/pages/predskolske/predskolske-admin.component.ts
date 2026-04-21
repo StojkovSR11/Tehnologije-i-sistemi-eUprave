@@ -69,22 +69,6 @@ import { Router } from '@angular/router';
           </div>
         </div>
 
-        <!-- Statistike -->
-        <div class="admin-card">
-          <h3>📊 Statistike i izveštaji</h3>
-          <p>Pregled statistika o upisu i kapacitetu vrtića</p>
-          <div class="card-actions">
-            <button class="btn btn-info" (click)="loadStatistics()">
-              Prikaži statistike
-            </button>
-            <button class="btn btn-warning" (click)="generateReport()">
-              Generiši izveštaj
-            </button>
-          </div>
-          <div *ngIf="statisticsStatus" [ngClass]="statisticsStatus.type" class="alert">
-            {{ statisticsStatus.message }}
-          </div>
-        </div>
       </div>
 
       
@@ -178,7 +162,6 @@ export class PredskolskeAdminComponent implements OnInit {
   vrticiStatus: { type: string; message: string } | null = null;
   decaStatus: { type: string; message: string } | null = null;
   zahteviStatus: { type: string; message: string } | null = null;
-  statisticsStatus: { type: string; message: string } | null = null;
 
   ngOnInit() {
     // Verify admin access
@@ -225,24 +208,4 @@ prikaziGrupe() {
     });
   }
 
-  loadStatistics() {
-    this.statisticsStatus = {
-      type: 'alert-info',
-      message: 'Učitavanje statistika...'
-    };
-    
-    setTimeout(() => {
-      this.statisticsStatus = {
-        type: 'alert-success',
-        message: '✅ Statistike: 85% popunjenost vrtića, 23 nova zahteva ovog meseca'
-      };
-    }, 1500);
-  }
-
-  generateReport() {
-    this.statisticsStatus = {
-      type: 'alert-info',
-      message: 'Funkcionalnost generisanja izveštaja će biti implementirana'
-    };
-  }
 }

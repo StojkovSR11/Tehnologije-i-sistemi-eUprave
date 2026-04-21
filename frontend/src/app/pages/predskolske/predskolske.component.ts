@@ -8,6 +8,7 @@ import {
   Dete,
   Vrtic,
   Obavestenje,
+  PrisustvoDogadjaj,
 } from "../../services/predskolske.service";
 import { AuthService } from "../../services/auth.service";
 
@@ -27,10 +28,19 @@ import { AuthService } from "../../services/auth.service";
     Dodaj dete
   </button>
   <button class="btn btn-secondary" routerLink="/predskolske/moje-dete">
-    Moja deca
+    Deca
   </button>
   <button class="btn btn-info" routerLink="/predskolske/vrtici">
-    Prikazi vrtiće
+    Vrtići
+  </button>
+  <button class="btn btn-secondary" (click)="scrollToSection('zahtevi-sekcija')">
+    Zahtevi
+  </button>
+  <button class="btn btn-secondary" (click)="scrollToSection('obavestenja-sekcija')">
+    Obaveštenja
+  </button>
+  <button class="btn btn-secondary" (click)="scrollToSection('evidencija-sekcija')">
+    Evidencija
   </button>
 </div>
 
@@ -135,19 +145,6 @@ import { AuthService } from "../../services/auth.service";
           </div>
         </div>
 
-        <!-- Test funkcionalnosti -->
-        <div class="card">
-          <h3>🔧 Test funkcionalnosti</h3>
-          <div class="test-buttons">
-            <button class="btn btn-secondary" (click)="testAPI()">
-              Test API
-            </button>
-          </div>
-
-          <div *ngIf="testStatus" [ngClass]="testStatus.type" class="alert">
-            {{ testStatus.message }}
-          </div>
-        </div>
       </div>
 
 
@@ -172,7 +169,7 @@ import { AuthService } from "../../services/auth.service";
 
 
 
-<div class="card">
+<div class="card" id="zahtevi-sekcija">
   <h3>📋 Moji zahtevi</h3>
 
   <div *ngIf="zahtevi.length > 0">
@@ -191,7 +188,7 @@ import { AuthService } from "../../services/auth.service";
   </div>
 </div>
 
-<div class="card">
+<div class="card" id="obavestenja-sekcija">
   <h3>🔔 Moja obaveštenja</h3>
 
   <div *ngIf="obavestenja.length > 0">
@@ -203,6 +200,39 @@ import { AuthService } from "../../services/auth.service";
 
   <div *ngIf="obavestenja.length === 0">
     <p>Trenutno nema obaveštenja.</p>
+  </div>
+</div>
+
+<div class="card" id="evidencija-sekcija">
+  <h3>🛡️ Evidencija prisustva mog deteta</h3>
+  <div class="form-group">
+    <label for="mojeDetePrisustvo">Izaberite dete</label>
+    <select
+      id="mojeDetePrisustvo"
+      name="mojeDetePrisustvo"
+      class="form-control"
+      [(ngModel)]="mojePrisustvoDeteId"
+    >
+      <option value="">— izaberite dete —</option>
+      <option *ngFor="let d of deca" [value]="d.id">
+        {{ d.ime }} {{ d.prezime }}
+      </option>
+    </select>
+  </div>
+  <button class="btn btn-secondary mb-20" (click)="ucitajMojePrisustvo()">
+    Prikaži evidenciju
+  </button>
+
+  <div *ngIf="mojePrisustvoStatus" [ngClass]="mojePrisustvoStatus.type" class="alert">
+    {{ mojePrisustvoStatus.message }}
+  </div>
+
+  <div *ngIf="mojaEvidencija.length > 0">
+    <div *ngFor="let e of mojaEvidencija" class="vrtic-item">
+      <p><strong>Tip:</strong> {{ e.tipDogadjaja }}</p>
+      <p><strong>Vreme:</strong> {{ e.vreme | date : "dd.MM.yyyy HH:mm:ss" }}</p>
+      <p *ngIf="e.napomena"><strong>Napomena:</strong> {{ e.napomena }}</p>
+    </div>
   </div>
 </div>
 
@@ -274,12 +304,6 @@ import { AuthService } from "../../services/auth.service";
         font-size: 1.1rem;
       }
 
-      .test-buttons {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-      }
-
       .vrtici-lista {
         display: flex;
         flex-direction: column;
@@ -338,9 +362,6 @@ import { AuthService } from "../../services/auth.service";
           font-size: 2rem;
         }
 
-        .test-buttons {
-          flex-direction: column;
-        }
       }
     `,
   ],
@@ -369,10 +390,12 @@ export class PredskolskeComponent implements OnInit {
   deca: Dete[] = [];
   zahtevi: ZahtevZaUpis[] = [];
   obavestenja: Obavestenje[] = [];
+  mojaEvidencija: PrisustvoDogadjaj[] = [];
+  mojePrisustvoDeteId = "";
 
   zahtevStatus: { type: string; message: string } | null = null;
   vrticiStatus: { type: string; message: string } | null = null;
-  testStatus: { type: string; message: string } | null = null;
+  mojePrisustvoStatus: { type: string; message: string } | null = null;
 
   ngOnInit() {
     this.loadVrtici();
@@ -462,23 +485,6 @@ export class PredskolskeComponent implements OnInit {
     });
   }
 
-  testAPI() {
-    this.predskolskeService.testAPI().subscribe({
-      next: (response) => {
-        this.testStatus = {
-          type: "alert-success",
-          message: `✅ Predškolske API radi: ${response.message}`,
-        };
-      },
-      error: (error) => {
-        this.testStatus = {
-          type: "alert-error",
-          message: `❌ Predškolske API ne radi: ${error.message}`,
-        };
-      },
-    });
-  }
-
 //deca
 
 loadMojaDeca() {
@@ -527,6 +533,34 @@ loadMojaObavestenja() {
   });
 }
 
+ucitajMojePrisustvo() {
+  if (!this.mojePrisustvoDeteId) {
+    this.mojePrisustvoStatus = {
+      type: "alert-error",
+      message: "Izaberite dete za pregled evidencije.",
+    };
+    this.mojaEvidencija = [];
+    return;
+  }
+
+  this.predskolskeService.getPrisustvoMogDeteta(this.mojePrisustvoDeteId).subscribe({
+    next: (data) => {
+      this.mojaEvidencija = data;
+      this.mojePrisustvoStatus = {
+        type: "alert-success",
+        message: `Učitano događaja: ${data.length}`,
+      };
+    },
+    error: (err) => {
+      this.mojaEvidencija = [];
+      this.mojePrisustvoStatus = {
+        type: "alert-error",
+        message: `Greška pri učitavanju evidencije: ${err?.error?.error || err.message}`,
+      };
+    },
+  });
+}
+
 getVrticNaziv(vrticId: string): string {
   const vrtic = this.vrtici.find((v) => v.id === vrticId);
   return vrtic ? vrtic.naziv : vrticId;
@@ -538,6 +572,13 @@ getDetePrikazZaZahtev(deteId: string): string {
     return `${d.ime} ${d.prezime}`.trim();
   }
   return deteId ? `ID: ${deteId}` : "—";
+}
+
+scrollToSection(sectionId: string) {
+  const el = document.getElementById(sectionId);
+  if (el) {
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 }
 
 

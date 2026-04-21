@@ -93,3 +93,25 @@ func (s *EvidencijaService) PregledEvidencije(deteID, od, do string) ([]model.Ev
 
 	return s.repo.GetByFilter(deteID, odTime, doTime)
 }
+
+func (s *EvidencijaService) PregledEvidencijeZaRoditelja(korisnikID primitive.ObjectID, deteID string) ([]model.EvidencijaPrisustva, error) {
+	deteID = strings.TrimSpace(deteID)
+	if deteID == "" {
+		return nil, errors.New("deteID je obavezan")
+	}
+
+	deteObjID, err := primitive.ObjectIDFromHex(deteID)
+	if err != nil {
+		return nil, errors.New("deteID nije ispravan")
+	}
+
+	dete, err := s.deteRepo.GetByID(deteObjID)
+	if err != nil || dete == nil {
+		return nil, errors.New("dete ne postoji")
+	}
+	if dete.KorisnikID != korisnikID {
+		return nil, errors.New("nije dozvoljen pregled evidencije za tudje dete")
+	}
+
+	return s.repo.GetByFilter(deteID, nil, nil)
+}

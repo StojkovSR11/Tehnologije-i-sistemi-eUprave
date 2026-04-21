@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"predskolske-ustanove/service"
 )
@@ -43,6 +44,29 @@ func (h *EvidencijaHandler) PregledEvidencije(c *gin.Context) {
 	do := c.Query("do")
 
 	evidencija, err := h.service.PregledEvidencije(deteID, od, do)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, evidencija)
+}
+
+func (h *EvidencijaHandler) PregledEvidencijeMogDeteta(c *gin.Context) {
+	deteID := c.Param("deteID")
+
+	korisnikIDVal, exists := c.Get("korisnikID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "korisnik nije ulogovan"})
+		return
+	}
+	korisnikID, ok := korisnikIDVal.(primitive.ObjectID)
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "neispravan korisnik"})
+		return
+	}
+
+	evidencija, err := h.service.PregledEvidencijeZaRoditelja(korisnikID, deteID)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

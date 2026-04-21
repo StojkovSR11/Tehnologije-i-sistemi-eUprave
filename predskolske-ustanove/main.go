@@ -131,6 +131,7 @@ func main() {
 		auth.POST("/moje-dete", deteHandler.KreirajMojeDete)
 		auth.POST("/zahtev", zahtevHandler.KreirajZahtev)
 		auth.GET("/obavestenja/moja", obavestenjeHandler.MojaObavestenja)
+		auth.GET("/prisustvo/moje-dete/:deteID", evidencijaHandler.PregledEvidencijeMogDeteta)
 	}
 
 	log.Println("Predskolske ustanove service starting on port 8081")

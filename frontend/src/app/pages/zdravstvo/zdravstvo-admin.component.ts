@@ -68,22 +68,6 @@ import { ZdravstvoService } from '../../services/zdravstvo.service';
           </div>
         </div>
 
-        <!-- Statistike i analitika -->
-        <div class="admin-card" *ngIf="roleService.isAdmin()">
-          <h3>📊 Statistike</h3>
-          <p>Pregled statistika i analitika zdravstvenog sistema</p>
-          <div class="card-actions">
-            <button class="btn btn-info" (click)="loadStatistics()">
-              Prikaži statistike
-            </button>
-            <button class="btn btn-warning" (click)="generateReport()">
-              Generiši izveštaj
-            </button>
-          </div>
-          <div *ngIf="statisticsStatus" [ngClass]="statisticsStatus.type" class="alert">
-            {{ statisticsStatus.message }}
-          </div>
-        </div>
       </div>
 
       <!-- Brzi pristup -->
@@ -91,7 +75,6 @@ import { ZdravstvoService } from '../../services/zdravstvo.service';
         <h3>Brzi pristup</h3>
         <div class="quick-actions">
           <a routerLink="/zdravstvo" class="btn btn-secondary">🏥 Osnovni zdravstvo</a>
-          <a routerLink="/admin" class="btn btn-danger" *ngIf="roleService.isAdmin()">⚙️ Admin panel</a>
           <a routerLink="/" class="btn btn-secondary">🏠 Početna</a>
         </div>
       </div>
@@ -202,7 +185,6 @@ export class ZdravstvoAdminComponent implements OnInit {
   patientsStatus: { type: string; message: string } | null = null;
   reportsStatus: { type: string; message: string } | null = null;
   appointmentsStatus: { type: string; message: string } | null = null;
-  statisticsStatus: { type: string; message: string } | null = null;
 
   ngOnInit() {
     // Verify access permissions
@@ -277,24 +259,4 @@ export class ZdravstvoAdminComponent implements OnInit {
     };
   }
 
-  loadStatistics() {
-    this.statisticsStatus = {
-      type: 'alert-info',
-      message: 'Učitavanje statistika...'
-    };
-    
-    setTimeout(() => {
-      this.statisticsStatus = {
-        type: 'alert-success',
-        message: '✅ Statistike: 150 pacijenata, 45 pregleda ovog meseca, 98% zadovoljstvo'
-      };
-    }, 1500);
-  }
-
-  generateReport() {
-    this.statisticsStatus = {
-      type: 'alert-info',
-      message: 'Funkcionalnost generisanja izveštaja će biti implementirana'
-    };
-  }
 }

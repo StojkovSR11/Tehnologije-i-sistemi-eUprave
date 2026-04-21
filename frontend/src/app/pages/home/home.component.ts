@@ -28,16 +28,6 @@ import { RoleService } from "../../services/role.service";
 
     <!-- Servisi za ulogovane korisnike -->
     <div *ngIf="authService.isLoggedIn()" class="services grid grid-2">
-      
-      <!-- Admin panel - samo za administratore -->
-      <div *ngIf="roleService.isAdmin()" class="card service-card admin-card">
-        <h3>⚙️ Admin Panel</h3>
-        <p>Upravljanje korisnicima i sistemom</p>
-        <div class="service-actions">
-          <a routerLink="/admin" class="btn btn-danger">Admin Panel</a>
-        </div>
-      </div>
-
       <!-- Zdravstvo - osnovne funkcionalnosti za građane, napredne za lekare -->
       <div *ngIf="roleService.canAccessBasicServices()" class="card service-card">
         <h3>🏥 Zdravstvo</h3>
@@ -110,10 +100,6 @@ import { RoleService } from "../../services/role.service";
       .service-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
-      }
-
-      .admin-card {
-        border-left: 4px solid #dc3545;
       }
 
       .role-badge {
