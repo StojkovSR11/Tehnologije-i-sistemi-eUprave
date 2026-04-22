@@ -31,6 +31,10 @@ func (s *KorisnikService) RegistrujKorisnika(k *model.Korisnik) (*model.Korisnik
 	if !regexp.MustCompile(`^\d{13}$`).MatchString(k.JMBG) {
 		return nil, errors.New("unesite JMBG od 13 cifara")
 	}
+	k.Email = strings.TrimSpace(k.Email)
+	if !strings.Contains(k.Email, "@") {
+		return nil, errors.New("email adresa nije validna")
+	}
 
 	// Hash sifre
 	hashed, err := bcrypt.GenerateFromPassword([]byte(k.Password), bcrypt.DefaultCost)

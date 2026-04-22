@@ -28,6 +28,22 @@ func (r *EvidencijaRepository) Create(evidencija *model.EvidencijaPrisustva) err
 	return err
 }
 
+// GetPoslednjiZaDete vraća poslednji evidentirani događaj za dete.
+func (r *EvidencijaRepository) GetPoslednjiZaDete(deteID string) (*model.EvidencijaPrisustva, error) {
+	filter := bson.M{"deteId": deteID}
+	opts := options.FindOne().SetSort(bson.D{{Key: "vreme", Value: -1}})
+
+	var e model.EvidencijaPrisustva
+	err := r.collection.FindOne(r.ctx, filter, opts).Decode(&e)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &e, nil
+}
+
 func (r *EvidencijaRepository) GetByFilter(deteID string, od, do *time.Time) ([]model.EvidencijaPrisustva, error) {
 	filter := bson.M{}
 	if deteID != "" {

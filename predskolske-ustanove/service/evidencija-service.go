@@ -47,6 +47,22 @@ func (s *EvidencijaService) DodajDogadjaj(deteID, tipDogadjaja, napomena string)
 		return nil, errors.New("tipDogadjaja mora biti DOLAZAK ili PREUZIMANJE")
 	}
 
+	poslednji, err := s.repo.GetPoslednjiZaDete(deteID)
+	if err != nil {
+		return nil, err
+	}
+	if poslednji == nil && tipDogadjaja != model.TipDolazak {
+		return nil, errors.New("prvi događaj mora biti DOLAZAK")
+	}
+	if poslednji != nil {
+		if poslednji.TipDogadjaja == model.TipDolazak && tipDogadjaja != model.TipPreuzimanje {
+			return nil, errors.New("nakon DOLAZAK mora ići PREUZIMANJE")
+		}
+		if poslednji.TipDogadjaja == model.TipPreuzimanje && tipDogadjaja != model.TipDolazak {
+			return nil, errors.New("nakon PREUZIMANJE mora ići DOLAZAK")
+		}
+	}
+
 	evidencija := &model.EvidencijaPrisustva{
 		ID:           primitive.NewObjectID(),
 		DeteID:       deteID,
